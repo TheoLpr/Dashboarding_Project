@@ -120,8 +120,9 @@ st.markdown("""
         background-color: #1B2A41;
     }
 
-    button {
+    [data-testid="stSegmentedControl"] button:not([aria-selected="true"]) {
         color: #10294A !important;
+    
     }
 
 </style>
