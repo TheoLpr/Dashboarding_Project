@@ -28,8 +28,19 @@ st.markdown("""
        ============================== */
 
     .stApp {
-        background-color: #2B1700;
-        color: #D6B588;
+    background: #0B1220;
+    color: #F2F4F7;
+    }
+
+    .hero {
+        background: linear-gradient(
+            135deg,
+            #0B1220,
+            #1B2A41,
+            #8FA8BF
+        );
+        border-radius: 20px;
+        padding: 50px;
     }
 
     /* Texte général */
