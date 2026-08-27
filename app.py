@@ -23,79 +23,178 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-    /* ==============================
-       GLOBAL
-       ============================== */
+    /* ========================================
+       🎨 CHOCOLATE ANALYTICS — DESIGN SYSTEM
+       ======================================== */
+
+    /* ---------- GLOBAL ---------- */
 
     .stApp {
-    background: #0B1220;
-    color: #F2F4F7;
-    }
-
-    .hero {
-        background: linear-gradient(
-            135deg,
-            #0B1220,
-            #1B2A41,
-            #8FA8BF
-        );
-        border-radius: 20px;
-        padding: 50px;
+        background-color: #0B1220;
+        color: #F2F4F7;
     }
 
     /* Texte général */
     html, body, [class*="css"] {
-        color: #D6B588;
+        color: #F2F4F7;
     }
 
-    /* ==============================
-       SIDEBAR
-       ============================== */
+    /* ---------- SIDEBAR ---------- */
 
     [data-testid="stSidebar"] {
-        background-color: #D6B588;
-        border-right: 1px solid #D6B588;
+        background-color: #0D1728;
+        border-right: 1px solid #26364A;
     }
 
-    /* ==============================
-       TITRES
-       ============================== */
+    /* ---------- TITRES ---------- */
 
     h1, h2, h3 {
-        color: #D6B588 !important;
+        color: #F2F4F7 !important;
     }
+
+    h1 {
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    h2 {
+        font-weight: 600;
+    }
+
+    h3 {
+        font-weight: 600;
+    }
+
+    /* ---------- TEXTE ---------- */
 
     p {
-        color: #D6B588;
+        color: #AAB5C4;
     }
 
-    /* ==============================
-       CARTES
-       ============================== */
+    /* ---------- CARTES ---------- */
 
     .card {
-        background-color: #181818;
-        border: 1px solid #252525;
-        border-radius: 12px;
+        background-color: #111C2E;
+        border: 1px solid #26364A;
+        border-radius: 14px;
         padding: 20px;
     }
 
-    /* ==============================
-       BOUTONS
-       ============================== */
+    /* ---------- HERO ---------- */
+
+    .hero {
+        background: linear-gradient(
+            135deg,
+            #0B1220 0%,
+            #1B2A41 55%,
+            #8FA8BF 100%
+        );
+
+        border-radius: 20px;
+        padding: 50px;
+        margin-bottom: 30px;
+        border: 1px solid #34485F;
+    }
+
+    .hero h1 {
+        color: #F2F4F7 !important;
+        font-size: 3rem;
+        margin-bottom: 10px;
+    }
+
+    .hero p {
+        color: #D5DCE5;
+        font-size: 1.1rem;
+    }
+
+    /* ---------- KPI CARDS ---------- */
+
+    .kpi-card {
+        background-color: #111C2E;
+        border: 1px solid #26364A;
+        border-radius: 14px;
+        padding: 20px;
+        height: 100%;
+    }
+
+    .kpi-title {
+        color: #AAB5C4;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+
+    .kpi-value {
+        color: #F2F4F7;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .kpi-positive {
+        color: #66F2FF;
+        font-size: 0.85rem;
+    }
+
+    /* ---------- BUTTONS ---------- */
 
     .stButton > button {
-        background-color: #B8FF00;
-        color: #101010;
+        background-color: #8FA8BF;
+        color: #0B1220;
         border: none;
         border-radius: 8px;
         font-weight: 600;
         padding: 10px 20px;
+        transition: all 0.2s ease;
     }
 
     .stButton > button:hover {
-        background-color: #D0FF66;
-        color: #101010;
+        background-color: #B7C8D7;
+        color: #0B1220;
+        border: none;
+    }
+
+    /* ---------- INPUTS ---------- */
+
+    .stSelectbox > div > div,
+    .stMultiSelect > div > div {
+        background-color: #111C2E;
+        border-color: #26364A;
+        color: #F2F4F7;
+    }
+
+    /* ---------- TABS ---------- */
+
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 10px;
+        background-color: transparent;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        color: #AAB5C4;
+        background-color: transparent;
+        border-radius: 8px;
+        padding: 8px 16px;
+    }
+
+    .stTabs [aria-selected="true"] {
+        color: #F2F4F7;
+        background-color: #1B2A41;
+    }
+
+    /* ---------- DIVIDERS ---------- */
+
+    hr {
+        border-color: #26364A;
+    }
+
+    /* ---------- LINKS ---------- */
+
+    a {
+        color: #66F2FF !important;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #B7F8FF !important;
     }
 
 </style>
