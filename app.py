@@ -28,13 +28,13 @@ st.markdown("""
        ============================== */
 
     .stApp {
-        background-color: #101010;
-        color: #F1EEE8;
+        background-color: #2B1700;
+        color: #D6B588;
     }
 
     /* Texte général */
     html, body, [class*="css"] {
-        color: #F1EEE8;
+        color: #D6B588;
     }
 
     /* ==============================
@@ -42,8 +42,8 @@ st.markdown("""
        ============================== */
 
     [data-testid="stSidebar"] {
-        background-color: #141414;
-        border-right: 1px solid #252525;
+        background-color: #D6B588;
+        border-right: 1px solid #D6B588;
     }
 
     /* ==============================
@@ -51,11 +51,11 @@ st.markdown("""
        ============================== */
 
     h1, h2, h3 {
-        color: #F1EEE8 !important;
+        color: #D6B588 !important;
     }
 
     p {
-        color: #A8A5A0;
+        color: #D6B588;
     }
 
     /* ==============================
