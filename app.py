@@ -54,25 +54,25 @@ st.markdown("""
 
     /* KPI cards */
     [data-testid="stMetric"] {
-        background-color: #0E87CC;
-        border: 3px #3BB9FF;
+        background-color: #FBFBF9;
+        border: 3px #FBFBF9;
         border-radius: 14px;
         padding: 20px;
     }
     
     /* KPI label */
     [data-testid="stMetricLabel"] {
-        color: #FBFBF9;
+        color: #10294A;
     }
     
     /* KPI value */
     [data-testid="stMetricValue"] {
-        color: #FBFBF9;
+        color: #10294A;
     }
     
     /* KPI delta */
     [data-testid="stMetricDelta"] {
-        color: #FBFBF9;
+        color: #10294A;
     }
     /* ---------- BUTTONS ---------- */
 
