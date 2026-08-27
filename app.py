@@ -36,13 +36,13 @@ st.markdown("""
             #1B3554 50%,
             #AFC4D8 100%
         );
-        color: #F2F4F7;
+        color: #FBFBF9;
     }
 
 
     /* Texte général */
     html, body, [class*="css"] {
-        color: #F2F4F7;
+        color: #FBFBF9;
     }
 
     /* ---------- SIDEBAR ---------- */
@@ -80,7 +80,7 @@ st.markdown("""
     /* ---------- CARTES ---------- */
 
     .card {
-        background-color: #111C2E;
+        background-color: #1B3554;
         border: 1px solid #26364A;
         border-radius: 14px;
         padding: 20px;
@@ -88,7 +88,7 @@ st.markdown("""
 
     /* KPI cards */
     [data-testid="stMetric"] {
-        background-color: #AFC4D8;
+        background-color: #FBFBF9;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
         padding: 20px;
@@ -96,17 +96,17 @@ st.markdown("""
     
     /* KPI label */
     [data-testid="stMetricLabel"] {
-        color: #F2F4F7;
+        color: #FBFBF9;
     }
     
     /* KPI value */
     [data-testid="stMetricValue"] {
-        color: #F2F4F7;
+        color: #FBFBF9;
     }
     
     /* KPI delta */
     [data-testid="stMetricDelta"] {
-        color: #F2F4F7;
+        color: #FBFBF9;
     }
     /* ---------- BUTTONS ---------- */
 
