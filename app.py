@@ -88,7 +88,7 @@ st.markdown("""
 
     /* KPI cards */
     [data-testid="stMetric"] {
-        background-color: rgba(11, 18, 32, 0.75);
+        background-color: #AFC4D8;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
         padding: 20px;
@@ -96,7 +96,7 @@ st.markdown("""
     
     /* KPI label */
     [data-testid="stMetricLabel"] {
-        color: #AAB5C4;
+        color: #F2F4F7;
     }
     
     /* KPI value */
@@ -106,7 +106,7 @@ st.markdown("""
     
     /* KPI delta */
     [data-testid="stMetricDelta"] {
-        color: #66F2FF;
+        color: #F2F4F7;
     }
     /* ---------- BUTTONS ---------- */
 
