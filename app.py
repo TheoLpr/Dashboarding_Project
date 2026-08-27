@@ -30,9 +30,15 @@ st.markdown("""
     /* ---------- GLOBAL ---------- */
 
     .stApp {
-        background-color: #0B1220;
+        background: linear-gradient(
+            135deg,
+            #080D18 0%,
+            #1B3554 50%,
+            #AFC4D8 100%
+        );
         color: #F2F4F7;
     }
+
 
     /* Texte général */
     html, body, [class*="css"] {
@@ -78,33 +84,6 @@ st.markdown("""
         border: 1px solid #26364A;
         border-radius: 14px;
         padding: 20px;
-    }
-
-    /* ---------- HERO ---------- */
-
-    .hero {
-        background: linear-gradient(
-            135deg,
-            #0B1220 0%,
-            #1B2A41 55%,
-            #8FA8BF 100%
-        );
-
-        border-radius: 20px;
-        padding: 50px;
-        margin-bottom: 30px;
-        border: 1px solid #34485F;
-    }
-
-    .hero h1 {
-        color: #F2F4F7 !important;
-        font-size: 3rem;
-        margin-bottom: 10px;
-    }
-
-    .hero p {
-        color: #D5DCE5;
-        font-size: 1.1rem;
     }
 
     /* ---------- KPI CARDS ---------- */
