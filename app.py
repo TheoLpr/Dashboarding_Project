@@ -120,12 +120,13 @@ st.markdown("""
         background-color: #1B2A41;
     }
 
-    [data-testid="stSegmentedControl"] button {
+    [data-testid="stBaseButton-segmented_control"] {
         color: #10294A !important;
     }
 
-    [data-testid="stSegmentedControl"] button[aria-selected="true"] * {
-        color: inherit !important;
+    /* Sélectionné */
+    [data-testid="stBaseButton-segmented_controlActive"] {
+        color: #FBFBF9 !important;
     }
 
 
