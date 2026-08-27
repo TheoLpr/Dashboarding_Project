@@ -48,8 +48,8 @@ st.markdown("""
     /* ---------- SIDEBAR ---------- */
 
     [data-testid="stSidebar"] {
-        background-color: #0D1728;
-        border-right: 1px solid #26364A;
+        background-color: #AFC4D8;
+        border-right: 1px solid #AFC4D8;
     }
 
     /* ---------- TITRES ---------- */
