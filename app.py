@@ -120,10 +120,14 @@ st.markdown("""
         background-color: #1B2A41;
     }
 
-    [data-testid="stSegmentedControl"] button:not([aria-selected="true"]) {
+    [data-testid="stSegmentedControl"] button {
         color: #10294A !important;
-    
     }
+
+    [data-testid="stSegmentedControl"] button[aria-selected="true"] * {
+        color: inherit !important;
+    }
+
 
 </style>
 """, unsafe_allow_html=True)
