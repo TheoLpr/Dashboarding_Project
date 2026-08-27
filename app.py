@@ -54,8 +54,8 @@ st.markdown("""
 
     /* KPI cards */
     [data-testid="stMetric"] {
-        background-color: #1C1C1C;
-        border: 1px solid rgba(255, 255, 255, 0.12);
+        background-color: #79BAEC;
+        border: 3px #3BB9FF;
         border-radius: 14px;
         padding: 20px;
     }
