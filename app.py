@@ -11,6 +11,84 @@ import matplotlib.pyplot as plt
 import base64
 import os
 
+import streamlit as st
+
+st.set_page_config(
+    page_title="Chocolate Analytics",
+    page_icon="🍫",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+st.markdown("""
+<style>
+
+    /* ==============================
+       GLOBAL
+       ============================== */
+
+    .stApp {
+        background-color: #101010;
+        color: #F1EEE8;
+    }
+
+    /* Texte général */
+    html, body, [class*="css"] {
+        color: #F1EEE8;
+    }
+
+    /* ==============================
+       SIDEBAR
+       ============================== */
+
+    [data-testid="stSidebar"] {
+        background-color: #141414;
+        border-right: 1px solid #252525;
+    }
+
+    /* ==============================
+       TITRES
+       ============================== */
+
+    h1, h2, h3 {
+        color: #F1EEE8 !important;
+    }
+
+    p {
+        color: #A8A5A0;
+    }
+
+    /* ==============================
+       CARTES
+       ============================== */
+
+    .card {
+        background-color: #181818;
+        border: 1px solid #252525;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    /* ==============================
+       BOUTONS
+       ============================== */
+
+    .stButton > button {
+        background-color: #B8FF00;
+        color: #101010;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 10px 20px;
+    }
+
+    .stButton > button:hover {
+        background-color: #D0FF66;
+        color: #101010;
+    }
+
+</style>
+""", unsafe_allow_html=True)
 
 client = OpenAI( api_key= st.secrets["GPT_KEY"])
 
