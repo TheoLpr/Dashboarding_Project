@@ -120,6 +120,10 @@ st.markdown("""
         background-color: #1B2A41;
     }
 
+    [data-testid="stSegmentedcontrol"] {
+        color: #10294A;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
