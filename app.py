@@ -52,43 +52,9 @@ st.markdown("""
         border-right: 1px solid #AFC4D8;
     }
 
-    /* ---------- TITRES ---------- */
-
-    h1, h2, h3 {
-        color: #F2F4F7 !important;
-    }
-
-    h1 {
-        font-weight: 700;
-        letter-spacing: -0.5px;
-    }
-
-    h2 {
-        font-weight: 600;
-    }
-
-    h3 {
-        font-weight: 600;
-    }
-
-    /* ---------- TEXTE ---------- */
-
-    p {
-        color: #AAB5C4;
-    }
-
-    /* ---------- CARTES ---------- */
-
-    .card {
-        background-color: #1B3554;
-        border: 1px solid #26364A;
-        border-radius: 14px;
-        padding: 20px;
-    }
-
     /* KPI cards */
     [data-testid="stMetric"] {
-        background-color: #FBFBF9;
+        background-color: #1B3554;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
         padding: 20px;
@@ -152,23 +118,6 @@ st.markdown("""
     .stTabs [aria-selected="true"] {
         color: #F2F4F7;
         background-color: #1B2A41;
-    }
-
-    /* ---------- DIVIDERS ---------- */
-
-    hr {
-        border-color: #26364A;
-    }
-
-    /* ---------- LINKS ---------- */
-
-    a {
-        color: #66F2FF !important;
-        text-decoration: none;
-    }
-
-    a:hover {
-        color: #B7F8FF !important;
     }
 
 </style>
