@@ -86,33 +86,28 @@ st.markdown("""
         padding: 20px;
     }
 
-    /* ---------- KPI CARDS ---------- */
-
-    .kpi-card {
-        background-color: #111C2E;
-        border: 1px solid #26364A;
+    /* KPI cards */
+    [data-testid="stMetric"] {
+        background-color: rgba(11, 18, 32, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 14px;
         padding: 20px;
-        height: 100%;
     }
-
-    .kpi-title {
+    
+    /* KPI label */
+    [data-testid="stMetricLabel"] {
         color: #AAB5C4;
-        font-size: 0.85rem;
-        margin-bottom: 5px;
     }
-
-    .kpi-value {
+    
+    /* KPI value */
+    [data-testid="stMetricValue"] {
         color: #F2F4F7;
-        font-size: 1.8rem;
-        font-weight: 700;
     }
-
-    .kpi-positive {
+    
+    /* KPI delta */
+    [data-testid="stMetricDelta"] {
         color: #66F2FF;
-        font-size: 0.85rem;
     }
-
     /* ---------- BUTTONS ---------- */
 
     .stButton > button {
