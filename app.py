@@ -531,7 +531,7 @@ with Global :
 
 
     elif option_periode == "Année" or  option_periode == "Mois" or  option_periode == "Semaine" :
-        periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode, curs)
+        periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
         
         CA_cur = curs.execute(f"Select sum(REVENUE) from Sales where ORDER_DATE {periode_sql_cur}").fetchone()[0] #CA
         CA_prec = curs.execute(f"Select sum(REVENUE) from Sales where ORDER_DATE {periode_sql_prec}").fetchone()[0] #CA
@@ -626,7 +626,7 @@ with Global :
 
 
 with Produits:
-    periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode, curs)
+    periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
     
     nb_ref = calcul_nb_ref(curs)
     nb_marques = calcul_nb_marques(curs)
