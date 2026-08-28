@@ -2,7 +2,7 @@ import pandas
 import sqlite3
 
 
-def get_periode_sql(option_periode, curs):
+def get_periode_sql(option_periode,option_comparaison, curs):
     
     if option_periode == "Total" :
         periode_sql_cur = "not null"
