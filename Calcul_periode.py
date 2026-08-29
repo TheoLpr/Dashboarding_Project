@@ -75,4 +75,25 @@ def get_periode_sql(option_periode,option_comparaison, curs):
                 periode_sql_cur = f"BETWEEN '{Min_DATE_cur}' AND '{Max_DATE_cur}'"
                 periode_sql_prec = f"BETWEEN '{Min_DATE_prec}' AND '{Max_DATE_prec}'"
 
+            else:
+
+                ISO_year, ISO_week = WEEK_cur.split("-")
+                ISO_year = int(ISO_year)
+                ISO_week = int(ISO_week)
+            
+                WEEK_prec = f"{ISO_year - 1}-{ISO_week:02d}"
+            
+                Min_DATE_prec = curs.execute(f"""
+                    SELECT MIN(DATE) FROM CALENDAR
+                    WHERE ISO_YEAR_WEEK = '{WEEK_prec}'
+                """).fetchone()[0]
+            
+                Max_DATE_prec = curs.execute(f"""
+                    SELECT MAX(DATE) FROM CALENDAR
+                    WHERE ISO_YEAR_WEEK = '{WEEK_prec}'
+                """).fetchone()[0]
+            
+                periode_sql_cur = f"BETWEEN '{Min_DATE_cur}' AND '{Max_DATE_cur}'"
+                periode_sql_prec = f"BETWEEN '{Min_DATE_prec}' AND '{Max_DATE_prec}'"
+
     return periode_sql_cur, periode_sql_prec
