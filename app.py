@@ -615,7 +615,8 @@ with Global :
         Unite_vendues_prec = curs.execute(f"Select count(*) from Sales where ORDER_DATE {periode_sql_prec}").fetchone()[0] #AVG Discount
 
         MARGE_cur = round((MARGE_BRUTE_cur/CA_cur)*100,2)
-        MARGE_prec = round((MARGE_BRUTE_prec/CA_prec)*100,2)
+        if MARGE_prec is not None :
+            MARGE_prec = round((MARGE_BRUTE_prec/CA_prec)*100,2)
 
         TOP_5_produits = pd.read_sql(f"""Select PRODUCTS.PRODUCT_NAME, PRODUCTS.BRAND, SUM(QUANTITY) as NB_VENTES from Sales 
                                 join PRODUCTS on Sales.PRODUCT_ID = PRODUCTS.PRODUCT_ID
@@ -642,12 +643,25 @@ with Global :
         TOP_5_produits = TOP_5_produits.rename(columns={"PRODUCT_NAME" : "Produit", "BRAND":"Marque", "NB_VENTES":"Nombre de ventes"})
         Bottom_5_produits = Bottom_5_produits.rename(columns={"PRODUCT_NAME" : "Produit", "BRAND":"Marque", "NB_VENTES":"Nombre de ventes"})
 
-        progression_CA = round(((CA_cur/CA_prec) - 1)*100,2)
-        progression_COUTS = round(((COUTS_cur/COUTS_prec) - 1)*100,2)
+        if CA_prec is not None :
+            progression_CA = round(((CA_cur/CA_prec) - 1)*100,2)
+        else :
+            progression_CA = None
+        
+        if COUTS_prec is not None :
+            progression_COUTS = round(((COUTS_cur/COUTS_prec) - 1)*100,2)
+        else :
+            progression_COUTS = None
        
-        progression_UNITES_VENDUES = round(((Unite_vendues_cur/Unite_vendues_prec) - 1)*100,2)
-
-        progression_TAUX_MARGE = round(MARGE_cur - MARGE_prec,2)
+        if Unite_vendues_prec is not None :
+            progression_UNITES_VENDUES = round(((Unite_vendues_cur/Unite_vendues_prec) - 1)*100,2)
+        else :
+            progression_UNITES_VENDUES = None
+        
+        if MARGE_prec is not None :
+            progression_TAUX_MARGE = round(MARGE_cur - MARGE_prec,2)
+        else :
+            progression_TAUX_MARGE = None
 
         if Avg_Discount_prec and Avg_Discount_cur is not None :
             progression_AVG_DISC = round(Avg_Discount_cur - Avg_Discount_prec,2)
@@ -658,19 +672,31 @@ with Global :
         
         
         with col1:
-            st.metric("Chiffre d'affaire total", f"{CA_cur}€", f"{progression_CA}%")
+            if progression_TAUX_MARGE is not None : 
+                st.metric("Chiffre d'affaire total", f"{CA_cur}€")
+            else :
+                st.metric("Chiffre d'affaire total", f"{CA_cur}€", f"{progression_CA}%")
         
         with col2:
-            st.metric("Coût de production total", f"{COUTS_cur}€", f"{progression_COUTS}%")
+            if progression_TAUX_MARGE is not None : 
+                st.metric("Coût de production total", f"{COUTS_cur}€")
+            else :
+                st.metric("Coût de production total", f"{COUTS_cur}€", f"{progression_COUTS}%")
         
         with col3:
-            st.metric("Taux de marge brute", f"{MARGE_cur}%", f"{progression_TAUX_MARGE}%")
+            if progression_TAUX_MARGE is not None : 
+                st.metric("Taux de marge brute", f"{MARGE_cur}%")
+            else :
+                st.metric("Taux de marge brute", f"{MARGE_cur}%", f"{progression_TAUX_MARGE}%")
             
 
         col4, col5 = st.columns(2)
         
         with col4:
-            st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}", f"{progression_UNITES_VENDUES}%")
+            if progression_UNITES_VENDUES is not None : 
+                st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}")
+            else :
+                st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}", f"{progression_UNITES_VENDUES}%")
         
         with col5:
             if progression_AVG_DISC is not None :  
