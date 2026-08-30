@@ -602,9 +602,12 @@ with Global :
         
         Avg_Discount_cur =  curs.execute(f"Select sum(DISCOUNT)/count(DISCOUNT) from Sales where ORDER_DATE {periode_sql_cur}").fetchone()[0] #AVG Discount
         Avg_Discount_prec =  curs.execute(f"Select sum(DISCOUNT)/count(DISCOUNT) from Sales where ORDER_DATE {periode_sql_prec}").fetchone()[0] #AVG Discount
-        
-        Avg_Discount_cur = round(Avg_Discount_cur*100,2)
-        Avg_Discount_prec = round(Avg_Discount_prec*100,2)
+
+        if Avg_Discount_cur is not None :
+            Avg_Discount_cur = round(Avg_Discount_cur*100,2)
+            
+        if Avg_Discount_prec is not None :
+            Avg_Discount_prec = round(Avg_Discount_prec*100,2)
 
         
         
@@ -646,8 +649,10 @@ with Global :
 
         progression_TAUX_MARGE = round(MARGE_cur - MARGE_prec,2)
 
-        progression_AVG_DISC = round(Avg_Discount_cur - Avg_Discount_prec,2)
-        
+        if Avg_Discount_prec and Avg_Discount_cur is not None :
+            progression_AVG_DISC = round(Avg_Discount_cur - Avg_Discount_prec,2)
+        else :
+            progression_AVG_DISC = None
     
         col1, col2, col3 = st.columns(3)
         
@@ -668,7 +673,10 @@ with Global :
             st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}", f"{progression_UNITES_VENDUES}%")
         
         with col5:
-            st.metric("Réduction moyenne", f"{Avg_Discount_cur}%",  f"{progression_AVG_DISC}%")
+            if progression_AVG_DISC is not None :  
+                st.metric("Réduction moyenne", f"{Avg_Discount_cur}%")
+            else :
+                st.metric("Réduction moyenne", f"{Avg_Discount_cur}%",  f"{progression_AVG_DISC}%")
 
 
         col6, col7 = st.columns(2)
