@@ -615,8 +615,10 @@ with Global :
         Unite_vendues_prec = curs.execute(f"Select count(*) from Sales where ORDER_DATE {periode_sql_prec}").fetchone()[0] #AVG Discount
 
         MARGE_cur = round((MARGE_BRUTE_cur/CA_cur)*100,2)
-        if MARGE_prec is not None :
+        if CA_prec is not None :
             MARGE_prec = round((MARGE_BRUTE_prec/CA_prec)*100,2)
+        else :
+            MARGE_prec = None
 
         TOP_5_produits = pd.read_sql(f"""Select PRODUCTS.PRODUCT_NAME, PRODUCTS.BRAND, SUM(QUANTITY) as NB_VENTES from Sales 
                                 join PRODUCTS on Sales.PRODUCT_ID = PRODUCTS.PRODUCT_ID
