@@ -14,6 +14,20 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+
+
+COLORS = {
+    "background": "#0B1220",
+    "card": "#111C2E",
+    "text": "#FBFBF9",
+    "secondary": "#AAB5C4",
+    "blue": "#4D9FFF",
+    "cyan": "#66F2FF",
+    "purple": "#B45CFF",
+    "green": "#B6FF00",
+    "orange": "#FF9F43",
+}
+
 st.set_page_config(
     page_title="Chocolate Analytics",
     page_icon="🍫",
