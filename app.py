@@ -146,40 +146,6 @@ def evolution_performance(connexion, periode_sql, option_periode):
         date_select = "C.ISO_YEAR_WEEK"
         group_by = "C.ISO_YEAR_WEEK"
 
-    else:  # Semaine
-        date_select = "S.ORDER_DATE"
-        group_by = "S.ORDER_DATE"
-
-    return pd.read_sql(f"""
-        SELECT
-            {date_select} AS PERIODE,
-            ROUND(SUM(S.REVENUE), 2) AS CA,
-            ROUND(SUM(S.COST), 2) AS COUTS,
-            ROUND(SUM(S.PROFIT), 2) AS BENEFICE
-
-        FROM SALES S
-
-        JOIN CALENDAR C
-            ON S.ORDER_DATE = C.DATE
-
-        WHERE S.ORDER_DATE {periode_sql}
-
-        GROUP BY {group_by}
-
-        ORDER BY PERIODE
-    """, connexion)
-
-
-def evolution_indicateurs(connexion, periode_sql, option_periode):
-
-    if option_periode in ["Total", "Année"]:
-        date_select = "substr(S.ORDER_DATE, 1, 7)"
-        group_by = "substr(S.ORDER_DATE, 1, 7)"
-
-    elif option_periode == "Mois":
-        date_select = "C.ISO_YEAR_WEEK"
-        group_by = "C.ISO_YEAR_WEEK"
-
     else:
         date_select = "S.ORDER_DATE"
         group_by = "S.ORDER_DATE"
@@ -188,18 +154,18 @@ def evolution_indicateurs(connexion, periode_sql, option_periode):
         SELECT
             {date_select} AS PERIODE,
 
-            SUM(S.QUANTITY) AS VENTES,
+            ROUND(SUM(S.REVENUE), 2) AS CA,
 
-            ROUND(
-                SUM(S.PROFIT) * 100.0 /
-                NULLIF(SUM(S.REVENUE), 0),
-                2
-            ) AS MARGE,
+            ROUND(SUM(S.COST), 2) AS COUTS,
+
+            ROUND(SUM(S.PROFIT), 2) AS BENEFICE,
 
             ROUND(
                 SUM(S.DISCOUNT * S.UNIT_PRICE * S.QUANTITY),
                 2
-            ) AS REMISE
+            ) AS REDUCTIONS,
+
+            SUM(S.QUANTITY) AS VENTES
 
         FROM SALES S
 
@@ -212,7 +178,6 @@ def evolution_indicateurs(connexion, periode_sql, option_periode):
 
         ORDER BY PERIODE
     """, connexion)
-
 
 
 def generer_plan(question):
@@ -704,7 +669,6 @@ with Global :
 if option_periode == "Total":
         periode_sql_cur = "IS NOT NULL"
         periode_sql_prec = ""
-
 st.subheader("Évolution de la performance")
 
 performance_df = evolution_performance(
@@ -715,12 +679,17 @@ performance_df = evolution_performance(
 
 fig = go.Figure()
 
+# Axe gauche : €
 fig.add_trace(go.Scatter(
     x=performance_df["PERIODE"],
     y=performance_df["CA"],
     name="Chiffre d'affaires",
     mode="lines+markers",
-    line=dict(color="#66F2FF", width=3)
+    line=dict(
+        color=COLORS["cyan"],
+        width=3
+    ),
+    yaxis="y"
 ))
 
 fig.add_trace(go.Scatter(
@@ -728,7 +697,11 @@ fig.add_trace(go.Scatter(
     y=performance_df["COUTS"],
     name="Coûts de production",
     mode="lines+markers",
-    line=dict(color="#FF9F43", width=3)
+    line=dict(
+        color=COLORS["orange"],
+        width=2
+    ),
+    yaxis="y"
 ))
 
 fig.add_trace(go.Scatter(
@@ -736,88 +709,84 @@ fig.add_trace(go.Scatter(
     y=performance_df["BENEFICE"],
     name="Bénéfice",
     mode="lines+markers",
-    line=dict(color="#B6FF00", width=3)
-))
-
-fig.update_layout(
-    xaxis_title="Période",
-    yaxis_title="Montant (€)",
-    template="plotly_dark",
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    font_color="#FBFBF9",
-    hovermode="x unified",
-    legend_title=None,
-    margin=dict(l=20, r=20, t=20, b=20)
-)
-
-st.plotly_chart(
-    fig,
-    use_container_width=True
-)
-
-st.subheader("Évolution des ventes, de la marge et des remises")
-
-indicateurs_df = evolution_indicateurs(
-    connexion,
-    periode_sql_cur,
-    option_periode
-)
-
-fig = go.Figure()
-
-fig.add_trace(go.Scatter(
-    x=indicateurs_df["PERIODE"],
-    y=indicateurs_df["VENTES"],
-    name="Ventes",
-    mode="lines+markers",
-    line=dict(color="#4D9FFF", width=3),
+    line=dict(
+        color=COLORS["green"],
+        width=3
+    ),
     yaxis="y"
 ))
 
 fig.add_trace(go.Scatter(
-    x=indicateurs_df["PERIODE"],
-    y=indicateurs_df["MARGE"],
-    name="Marge",
+    x=performance_df["PERIODE"],
+    y=performance_df["REDUCTIONS"],
+    name="Réductions accordées",
     mode="lines+markers",
-    line=dict(color="#B6FF00", width=3),
-    yaxis="y2"
+    line=dict(
+        color=COLORS["purple"],
+        width=2,
+        dash="dot"
+    ),
+    yaxis="y"
 ))
 
+# Axe droit : unités
 fig.add_trace(go.Scatter(
-    x=indicateurs_df["PERIODE"],
-    y=indicateurs_df["REMISE"],
-    name="Remise moyenne",
+    x=performance_df["PERIODE"],
+    y=performance_df["VENTES"],
+    name="Unités vendues",
     mode="lines+markers",
-    line=dict(color="#B45CFF", width=3),
+    line=dict(
+        color=COLORS["blue"],
+        width=2
+    ),
     yaxis="y2"
 ))
 
 fig.update_layout(
+
+    xaxis=dict(
+        title="Période"
+    ),
+
     yaxis=dict(
-        title="Nombre de ventes"
+        title="Montant (€)",
+        tickformat=",.0f"
     ),
 
     yaxis2=dict(
-        title="Pourcentage",
+        title="Unités vendues",
         overlaying="y",
-        side="right"
+        side="right",
+        tickformat=",.0f"
     ),
 
     template="plotly_dark",
+
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
-    font_color="#FBFBF9",
+
+    font=dict(
+        color=COLORS["text"]
+    ),
+
     hovermode="x unified",
-    legend_title=None,
-    margin=dict(l=20, r=20, t=20, b=20)
+
+    legend=dict(
+        title=None
+    ),
+
+    margin=dict(
+        l=20,
+        r=20,
+        t=20,
+        b=20
+    )
 )
 
 st.plotly_chart(
     fig,
     use_container_width=True
 )
-
 
 with Produits:
     periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
