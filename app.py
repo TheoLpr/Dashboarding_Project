@@ -786,7 +786,15 @@ fig.update_layout(
     hovermode="x unified",
 
     legend=dict(
-        title=None
+        title=None,
+        orientation="h",
+        yanchor="top",
+        y=-0.15,
+        xanchor="center",
+        x=0.5,
+        font=dict(
+            color=COLORS["text"]
+        )
     ),
 
     margin=dict(
