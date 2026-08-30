@@ -674,19 +674,19 @@ with Global :
         
         
         with col1:
-            if progression_TAUX_MARGE is not None : 
+            if progression_TAUX_MARGE is None : 
                 st.metric("Chiffre d'affaire total", f"{CA_cur}€")
             else :
                 st.metric("Chiffre d'affaire total", f"{CA_cur}€", f"{progression_CA}%")
         
         with col2:
-            if progression_TAUX_MARGE is not None : 
+            if progression_TAUX_MARGE is None : 
                 st.metric("Coût de production total", f"{COUTS_cur}€")
             else :
                 st.metric("Coût de production total", f"{COUTS_cur}€", f"{progression_COUTS}%")
         
         with col3:
-            if progression_TAUX_MARGE is not None : 
+            if progression_TAUX_MARGE is None : 
                 st.metric("Taux de marge brute", f"{MARGE_cur}%")
             else :
                 st.metric("Taux de marge brute", f"{MARGE_cur}%", f"{progression_TAUX_MARGE}%")
@@ -695,13 +695,13 @@ with Global :
         col4, col5 = st.columns(2)
         
         with col4:
-            if progression_UNITES_VENDUES is not None : 
+            if progression_UNITES_VENDUES is None : 
                 st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}")
             else :
                 st.metric("Nombre d'unités vendues", f"{Unite_vendues_cur}", f"{progression_UNITES_VENDUES}%")
         
         with col5:
-            if progression_AVG_DISC is not None :  
+            if progression_AVG_DISC is None :  
                 st.metric("Réduction moyenne", f"{Avg_Discount_cur}%")
             else :
                 st.metric("Réduction moyenne", f"{Avg_Discount_cur}%",  f"{progression_AVG_DISC}%")
