@@ -10,7 +10,8 @@ import json
 import matplotlib.pyplot as plt
 import base64
 import os
-
+import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 st.set_page_config(
@@ -135,7 +136,82 @@ st.markdown("""
 
 client = OpenAI( api_key= st.secrets["GPT_KEY"])
 
+def evolution_performance(connexion, periode_sql, option_periode):
 
+    if option_periode in ["Total", "Année"]:
+        date_select = "substr(S.ORDER_DATE, 1, 7)"
+        group_by = "substr(S.ORDER_DATE, 1, 7)"
+
+    elif option_periode == "Mois":
+        date_select = "C.ISO_YEAR_WEEK"
+        group_by = "C.ISO_YEAR_WEEK"
+
+    else:  # Semaine
+        date_select = "S.ORDER_DATE"
+        group_by = "S.ORDER_DATE"
+
+    return pd.read_sql(f"""
+        SELECT
+            {date_select} AS PERIODE,
+            ROUND(SUM(S.REVENUE), 2) AS CA,
+            ROUND(SUM(S.COST), 2) AS COUTS,
+            ROUND(SUM(S.PROFIT), 2) AS BENEFICE
+
+        FROM SALES S
+
+        JOIN CALENDAR C
+            ON S.ORDER_DATE = C.DATE
+
+        WHERE S.ORDER_DATE {periode_sql}
+
+        GROUP BY {group_by}
+
+        ORDER BY PERIODE
+    """, connexion)
+
+
+def evolution_indicateurs(connexion, periode_sql, option_periode):
+
+    if option_periode in ["Total", "Année"]:
+        date_select = "substr(S.ORDER_DATE, 1, 7)"
+        group_by = "substr(S.ORDER_DATE, 1, 7)"
+
+    elif option_periode == "Mois":
+        date_select = "C.ISO_YEAR_WEEK"
+        group_by = "C.ISO_YEAR_WEEK"
+
+    else:
+        date_select = "S.ORDER_DATE"
+        group_by = "S.ORDER_DATE"
+
+    return pd.read_sql(f"""
+        SELECT
+            {date_select} AS PERIODE,
+
+            SUM(S.QUANTITY) AS VENTES,
+
+            ROUND(
+                SUM(S.PROFIT) * 100.0 /
+                NULLIF(SUM(S.REVENUE), 0),
+                2
+            ) AS MARGE,
+
+            ROUND(
+                SUM(S.DISCOUNT * S.UNIT_PRICE * S.QUANTITY),
+                2
+            ) AS REMISE
+
+        FROM SALES S
+
+        JOIN CALENDAR C
+            ON S.ORDER_DATE = C.DATE
+
+        WHERE S.ORDER_DATE {periode_sql}
+
+        GROUP BY {group_by}
+
+        ORDER BY PERIODE
+    """, connexion)
 
 
 
@@ -623,6 +699,124 @@ with Global :
 
         st.subheader(" 5 produits les moins vendus")
         st.dataframe(Bottom_5_produits)
+        
+
+if option_periode == "Total":
+        periode_sql_cur = "IS NOT NULL"
+        periode_sql_prec = ""
+
+st.subheader("Évolution de la performance")
+
+performance_df = evolution_performance(
+    connexion,
+    periode_sql_cur,
+    option_periode
+)
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(
+    x=performance_df["PERIODE"],
+    y=performance_df["CA"],
+    name="Chiffre d'affaires",
+    mode="lines+markers",
+    line=dict(color="#66F2FF", width=3)
+))
+
+fig.add_trace(go.Scatter(
+    x=performance_df["PERIODE"],
+    y=performance_df["COUTS"],
+    name="Coûts de production",
+    mode="lines+markers",
+    line=dict(color="#FF9F43", width=3)
+))
+
+fig.add_trace(go.Scatter(
+    x=performance_df["PERIODE"],
+    y=performance_df["BENEFICE"],
+    name="Bénéfice",
+    mode="lines+markers",
+    line=dict(color="#B6FF00", width=3)
+))
+
+fig.update_layout(
+    xaxis_title="Période",
+    yaxis_title="Montant (€)",
+    template="plotly_dark",
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font_color="#FBFBF9",
+    hovermode="x unified",
+    legend_title=None,
+    margin=dict(l=20, r=20, t=20, b=20)
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
+
+st.subheader("Évolution des ventes, de la marge et des remises")
+
+indicateurs_df = evolution_indicateurs(
+    connexion,
+    periode_sql_cur,
+    option_periode
+)
+
+fig = go.Figure()
+
+fig.add_trace(go.Scatter(
+    x=indicateurs_df["PERIODE"],
+    y=indicateurs_df["VENTES"],
+    name="Ventes",
+    mode="lines+markers",
+    line=dict(color="#4D9FFF", width=3),
+    yaxis="y"
+))
+
+fig.add_trace(go.Scatter(
+    x=indicateurs_df["PERIODE"],
+    y=indicateurs_df["MARGE"],
+    name="Marge",
+    mode="lines+markers",
+    line=dict(color="#B6FF00", width=3),
+    yaxis="y2"
+))
+
+fig.add_trace(go.Scatter(
+    x=indicateurs_df["PERIODE"],
+    y=indicateurs_df["REMISE"],
+    name="Remise moyenne",
+    mode="lines+markers",
+    line=dict(color="#B45CFF", width=3),
+    yaxis="y2"
+))
+
+fig.update_layout(
+    yaxis=dict(
+        title="Nombre de ventes"
+    ),
+
+    yaxis2=dict(
+        title="Pourcentage",
+        overlaying="y",
+        side="right"
+    ),
+
+    template="plotly_dark",
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font_color="#FBFBF9",
+    hovermode="x unified",
+    legend_title=None,
+    margin=dict(l=20, r=20, t=20, b=20)
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
 
 
 with Produits:
