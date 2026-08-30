@@ -645,17 +645,17 @@ with Global :
         TOP_5_produits = TOP_5_produits.rename(columns={"PRODUCT_NAME" : "Produit", "BRAND":"Marque", "NB_VENTES":"Nombre de ventes"})
         Bottom_5_produits = Bottom_5_produits.rename(columns={"PRODUCT_NAME" : "Produit", "BRAND":"Marque", "NB_VENTES":"Nombre de ventes"})
 
-        if CA_prec is not None :
+        if CA_prec is not None and CA_prec!=0 :
             progression_CA = round(((CA_cur/CA_prec) - 1)*100,2)
         else :
             progression_CA = None
         
-        if COUTS_prec is not None :
+        if COUTS_prec is not None and COUTS_prec!=0 :
             progression_COUTS = round(((COUTS_cur/COUTS_prec) - 1)*100,2)
         else :
             progression_COUTS = None
        
-        if Unite_vendues_prec is not None :
+        if Unite_vendues_prec is not None and Unite_vendues_prec!=0 :
             progression_UNITES_VENDUES = round(((Unite_vendues_cur/Unite_vendues_prec) - 1)*100,2)
         else :
             progression_UNITES_VENDUES = None
