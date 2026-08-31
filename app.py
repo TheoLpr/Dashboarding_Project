@@ -490,7 +490,7 @@ def generer_plan_avec_retry(question, max_retry=5):
                         
                         {question}
                         """
-            st.write(question)
+            #st.write(question)
 
             
 
@@ -716,136 +716,136 @@ with Global :
         st.dataframe(Bottom_5_produits)
         
 
-if option_periode == "Total":
+    if option_periode == "Total":
         periode_sql_cur = "IS NOT NULL"
         periode_sql_prec = ""
-st.subheader("Évolution de la performance")
+    st.subheader("Évolution de la performance")
 
-performance_df = evolution_performance(
-    connexion,
-    periode_sql_cur,
-    option_periode
-)
-
-fig = go.Figure()
-
-# Axe gauche : €
-fig.add_trace(go.Scatter(
-    x=performance_df["PERIODE"],
-    y=performance_df["CA"],
-    name="Chiffre d'affaires",
-    mode="lines+markers",
-    line=dict(
-        color=COLORS["cyan"],
-        width=3
-    ),
-    yaxis="y"
-))
-
-fig.add_trace(go.Scatter(
-    x=performance_df["PERIODE"],
-    y=performance_df["COUTS"],
-    name="Coûts de production",
-    mode="lines+markers",
-    line=dict(
-        color=COLORS["orange"],
-        width=2
-    ),
-    yaxis="y"
-))
-
-fig.add_trace(go.Scatter(
-    x=performance_df["PERIODE"],
-    y=performance_df["BENEFICE"],
-    name="Bénéfice",
-    mode="lines+markers",
-    line=dict(
-        color=COLORS["green"],
-        width=3
-    ),
-    yaxis="y"
-))
-
-fig.add_trace(go.Scatter(
-    x=performance_df["PERIODE"],
-    y=performance_df["REDUCTIONS"],
-    name="Réductions accordées",
-    mode="lines+markers",
-    line=dict(
-        color=COLORS["purple"],
-        width=2,
-        dash="dot"
-    ),
-    yaxis="y"
-))
-
-# Axe droit : unités
-fig.add_trace(go.Scatter(
-    x=performance_df["PERIODE"],
-    y=performance_df["VENTES"],
-    name="Unités vendues",
-    mode="lines+markers",
-    line=dict(
-        color=COLORS["blue"],
-        width=2
-    ),
-    yaxis="y2"
-))
-
-fig.update_layout(
-
-    xaxis=dict(
-        title="Période"
-    ),
-
-    yaxis=dict(
-        title="Montant (€)",
-        tickformat=",.0f"
-    ),
-
-    yaxis2=dict(
-        title="Unités vendues",
-        overlaying="y",
-        side="right",
-        tickformat=",.0f"
-    ),
-
-    template="plotly_dark",
-
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-
-    font=dict(
-        color=COLORS["text"]
-    ),
-
-    hovermode="x unified",
-
-    legend=dict(
-        title=None,
-        orientation="h",
-        yanchor="top",
-        y=-0.15,
-        xanchor="center",
-        x=0.5,
+    performance_df = evolution_performance(
+        connexion,
+        periode_sql_cur,
+        option_periode
+    )
+    
+    fig = go.Figure()
+    
+    # Axe gauche : €
+    fig.add_trace(go.Scatter(
+        x=performance_df["PERIODE"],
+        y=performance_df["CA"],
+        name="Chiffre d'affaires",
+        mode="lines+markers",
+        line=dict(
+            color=COLORS["cyan"],
+            width=3
+        ),
+        yaxis="y"
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=performance_df["PERIODE"],
+        y=performance_df["COUTS"],
+        name="Coûts de production",
+        mode="lines+markers",
+        line=dict(
+            color=COLORS["orange"],
+            width=2
+        ),
+        yaxis="y"
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=performance_df["PERIODE"],
+        y=performance_df["BENEFICE"],
+        name="Bénéfice",
+        mode="lines+markers",
+        line=dict(
+            color=COLORS["green"],
+            width=3
+        ),
+        yaxis="y"
+    ))
+    
+    fig.add_trace(go.Scatter(
+        x=performance_df["PERIODE"],
+        y=performance_df["REDUCTIONS"],
+        name="Réductions accordées",
+        mode="lines+markers",
+        line=dict(
+            color=COLORS["purple"],
+            width=2,
+            dash="dot"
+        ),
+        yaxis="y"
+    ))
+    
+    # Axe droit : unités
+    fig.add_trace(go.Scatter(
+        x=performance_df["PERIODE"],
+        y=performance_df["VENTES"],
+        name="Unités vendues",
+        mode="lines+markers",
+        line=dict(
+            color=COLORS["blue"],
+            width=2
+        ),
+        yaxis="y2"
+    ))
+    
+    fig.update_layout(
+    
+        xaxis=dict(
+            title="Période"
+        ),
+    
+        yaxis=dict(
+            title="Montant (€)",
+            tickformat=",.0f"
+        ),
+    
+        yaxis2=dict(
+            title="Unités vendues",
+            overlaying="y",
+            side="right",
+            tickformat=",.0f"
+        ),
+    
+        template="plotly_dark",
+    
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    
         font=dict(
             color=COLORS["text"]
+        ),
+    
+        hovermode="x unified",
+    
+        legend=dict(
+            title=None,
+            orientation="h",
+            yanchor="top",
+            y=-0.15,
+            xanchor="center",
+            x=0.5,
+            font=dict(
+                color=COLORS["text"]
+            )
+        ),
+    
+        margin=dict(
+            l=20,
+            r=20,
+            t=20,
+            b=20
         )
-    ),
-
-    margin=dict(
-        l=20,
-        r=20,
-        t=20,
-        b=20
     )
-)
-
-st.plotly_chart(
-    fig,
-    use_container_width=True
-)
-
+    
+    st.plotly_chart(
+        fig,
+        use_container_width=True
+    )
+    
 with Produits:
     periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
     
