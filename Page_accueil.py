@@ -4,37 +4,212 @@ import urllib.parse
 
 def page_accueil():
 
-    # ==========================================================
-    # HERO
-    # ==========================================================
+    st.title("Chocolate Sales Dashboard")
 
-    st.markdown(
+    st.subheader("Explorer la performance commerciale par la donnée.")
+
+    st.write(
         """
-        <div style="padding: 55px 0 35px 0;">
-            <p style="
-                color:#66F2FF;
-                font-size:0.8rem;
-                font-weight:600;
-                letter-spacing:2px;
-                margin-bottom:15px;
-            ">
-                CHOCOLATE SALES
-            </p>
+        Ce projet propose un dashboard interactif construit à partir de données
+        de ventes de chocolat. L'objectif est de transformer des données brutes
+        en indicateurs directement exploitables pour analyser l'activité commerciale.
+        """
+    )
 
-            <h1 style="
-                color:#FBFBF9;
-                font-size:3.2rem;
-                line-height:1.1;
-                margin:0 0 20px 0;
-            ">
-                Explorer la performance<br>
-                commerciale par la donnée.
-            </h1>
+    st.divider()
 
-            <p style="
-                color:#AAB5C4;
-                font-size:1.1rem;
-                line-height:1.7;
+    # ------------------------------------------------------------------
+    # LE PROJET
+    # ------------------------------------------------------------------
+
+    st.header("Le projet")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Pourquoi ce projet ?")
+
+        st.write(
+            """
+            Ce dashboard a été conçu comme un cas concret d'analyse de données :
+            partir d'un volume important de transactions, structurer les données,
+            calculer des indicateurs pertinents et les restituer sous une forme
+            simple à explorer.
+            """
+        )
+
+    with col2:
+        st.subheader("L'objectif")
+
+        st.write(
+            """
+            L'idée est de répondre rapidement à des questions métier autour du
+            chiffre d'affaires, des produits, des boutiques et des clients,
+            sans avoir à manipuler directement les données brutes.
+            """
+        )
+
+    st.divider()
+
+    # ------------------------------------------------------------------
+    # DONNÉES
+    # ------------------------------------------------------------------
+
+    st.header("Les données")
+
+    st.write(
+        "Le jeu de données couvre une période de deux ans, du 1er janvier 2023 "
+        "au 31 décembre 2024."
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.metric("Période", "01.01.2023 → 31.12.2024")
+        st.metric("Transactions", "1 000 000")
+
+    with col2:
+        st.metric("Produits", "200")
+        st.metric("Boutiques", "100")
+        st.metric("Clients", "50 000")
+
+    st.divider()
+
+    # ------------------------------------------------------------------
+    # STRUCTURE DES DONNÉES
+    # ------------------------------------------------------------------
+
+    st.header("Comment les données sont organisées")
+
+    cols = st.columns(5)
+
+    with cols[0]:
+        st.subheader("SALES")
+        st.caption(
+            "Transactions, quantités, prix, remises, chiffre d'affaires, coûts et profits."
+        )
+
+    with cols[1]:
+        st.subheader("PRODUCTS")
+        st.caption(
+            "Produits, marques, catégories, poids et pourcentage de cacao."
+        )
+
+    with cols[2]:
+        st.subheader("STORES")
+        st.caption(
+            "Boutiques, villes, pays et types de magasins."
+        )
+
+    with cols[3]:
+        st.subheader("CUSTOMERS")
+        st.caption(
+            "Clients, âge, genre, fidélité et date d'inscription."
+        )
+
+    with cols[4]:
+        st.subheader("CALENDAR")
+        st.caption(
+            "Dates, années, mois et semaines pour l'analyse temporelle."
+        )
+
+    st.divider()
+
+    # ------------------------------------------------------------------
+    # EXPLORATION
+    # ------------------------------------------------------------------
+
+    st.header("Que peut-on explorer ?")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.subheader("Performance globale")
+        st.write(
+            "Chiffre d'affaires, coûts, profit, volumes vendus et évolution "
+            "de l'activité sur différentes périodes."
+        )
+
+        st.subheader("Produits")
+        st.write(
+            "Performance des références, marques et catégories, avec "
+            "classements selon différents indicateurs."
+        )
+
+    with col2:
+        st.subheader("Boutiques")
+        st.write(
+            "Comparaison des boutiques, analyse du chiffre d'affaires moyen "
+            "et performances par ville."
+        )
+
+        st.subheader("Clients")
+        st.write(
+            "Analyse de la clientèle, fidélité, segmentation et contribution "
+            "des principaux clients."
+        )
+
+    st.divider()
+
+    # ------------------------------------------------------------------
+    # ASSISTANT IA
+    # ------------------------------------------------------------------
+
+    st.header("Assistant IA")
+
+    st.write(
+        """
+        Le dashboard intègre également un assistant permettant de poser des
+        questions en langage naturel sur les données. Il peut identifier les
+        informations pertinentes, interroger la base et restituer les résultats
+        sous une forme compréhensible.
+        """
+    )
+
+    st.divider()
+
+    # ------------------------------------------------------------------
+    # CONTACT
+    # ------------------------------------------------------------------
+
+    st.header("Contact")
+
+    st.write(
+        "Une question, une remarque ou simplement envie d'échanger sur le projet ?"
+    )
+
+    visitor_email = st.text_input(
+        "Votre email (facultatif)",
+        placeholder="exemple@email.com"
+    )
+
+    message = st.text_area(
+        "Message",
+        placeholder="Votre message..."
+    )
+
+    if st.button("Préparer l'email"):
+
+        body = message
+
+        if visitor_email:
+            body = (
+                f"Email du visiteur : {visitor_email}\n\n"
+                f"{message}"
+            )
+
+        mailto = (
+            "mailto:theo.lepere@gmail.com"
+            "?subject="
+            + urllib.parse.quote("Contact - Chocolate Sales Dashboard")
+            + "&body="
+            + urllib.parse.quote(body)
+        )
+
+        st.link_button(
+            "Ouvrir mon client email",
+            mailto
+        )                line-height:1.7;
                 max-width:760px;
                 margin:0;
             ">
