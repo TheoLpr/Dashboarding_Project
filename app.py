@@ -13,6 +13,7 @@ import os
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+from Page_accueil import page_accueil
 
 
 
@@ -509,9 +510,12 @@ option_periode = st.segmented_control("",
     ["Total", "Année", "Mois", "Semaine"], default = "Total"
 )
 
-Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
+Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
 
 option_comparaison = ""
+
+with Accueil:
+    page_accueil()
 
 with Global :
 
