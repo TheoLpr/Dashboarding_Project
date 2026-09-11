@@ -510,7 +510,7 @@ option_periode = st.segmented_control("",
     ["Total", "Année", "Mois", "Semaine"], default = "Total"
 )
 
-Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
+Accueil, Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
 
 option_comparaison = ""
 
