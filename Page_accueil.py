@@ -4,37 +4,289 @@ import urllib.parse
 
 def page_accueil():
 
-    # ============================================================
+    # ==========================================================
     # HERO
-    # ============================================================
+    # ==========================================================
 
     st.markdown(
         """
-        <div style="
-            padding: 70px 0 55px 0;
-            max-width: 900px;
-        ">
-            <div style="
-                color: #66F2FF;
-                font-size: 0.85rem;
-                font-weight: 600;
-                letter-spacing: 2px;
-                margin-bottom: 18px;
+        <div style="padding: 55px 0 35px 0;">
+            <p style="
+                color:#66F2FF;
+                font-size:0.8rem;
+                font-weight:600;
+                letter-spacing:2px;
+                margin-bottom:15px;
             ">
                 CHOCOLATE SALES
-            </div>
+            </p>
 
             <h1 style="
-                font-size: 3.2rem;
-                line-height: 1.1;
-                margin-bottom: 25px;
-                color: #FBFBF9;
+                color:#FBFBF9;
+                font-size:3.2rem;
+                line-height:1.1;
+                margin:0 0 20px 0;
             ">
-                Explorer la performance commerciale
-                <span style="color:#66F2FF;">à travers la donnée.</span>
+                Explorer la performance<br>
+                commerciale par la donnée.
             </h1>
 
             <p style="
+                color:#AAB5C4;
+                font-size:1.1rem;
+                line-height:1.7;
+                max-width:760px;
+                margin:0;
+            ">
+                Un projet personnel de data analysis construit autour
+                d'un jeu de données de ventes. L'objectif est de transformer
+                des données transactionnelles en informations directement
+                exploitables.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.divider()
+
+    # ==========================================================
+    # POURQUOI CE PROJET ?
+    # ==========================================================
+
+    st.markdown("### Pourquoi ce projet ?")
+
+    st.write(
+        """
+        Ce dashboard part d'une problématique simple : **comprendre la
+        performance d'une activité commerciale à partir de ses données**.
+
+        Les transactions sont reliées aux produits, aux boutiques, aux
+        clients et au calendrier afin de pouvoir analyser l'activité sous
+        plusieurs angles et à différentes périodes.
+        """
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ==========================================================
+    # DONNEES
+    # ==========================================================
+
+    col1, col2 = st.columns([1.4, 1], gap="large")
+
+    with col1:
+        st.markdown("#### Période analysée")
+
+        st.markdown(
+            """
+            <div style="
+                font-size:2rem;
+                font-weight:600;
+                color:#FBFBF9;
+                padding:12px 0 5px 0;
+            ">
+                01.01.2023
+                <span style="color:#66F2FF;">→</span>
+                31.12.2024
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.caption("Deux années de données de ventes")
+
+    with col2:
+        st.markdown("#### Volume")
+
+        st.markdown(
+            """
+            <div style="
+                font-size:2rem;
+                font-weight:600;
+                color:#FBFBF9;
+                padding:12px 0 5px 0;
+            ">
+                1 000 000
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.caption("transactions disponibles à l'analyse")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("Produits", "200")
+
+    with col2:
+        st.metric("Boutiques", "100")
+
+    with col3:
+        st.metric("Clients", "50 000")
+
+    # ==========================================================
+    # MODELE DE DONNEES
+    # ==========================================================
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    st.markdown("### Comment les données sont organisées")
+
+    st.write(
+        "Les ventes constituent le point central du modèle et sont enrichies "
+        "par plusieurs dimensions."
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    with col1:
+        st.markdown("**SALES**")
+        st.caption("Transactions")
+
+    with col2:
+        st.markdown("**PRODUCTS**")
+        st.caption("Produits")
+
+    with col3:
+        st.markdown("**STORES**")
+        st.caption("Boutiques")
+
+    with col4:
+        st.markdown("**CUSTOMERS**")
+        st.caption("Clients")
+
+    with col5:
+        st.markdown("**CALENDAR**")
+        st.caption("Temps")
+
+    # ==========================================================
+    # EXPLORATION
+    # ==========================================================
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    st.markdown("### Explorer les données")
+
+    st.write(
+        "Le dashboard propose plusieurs niveaux d'analyse complémentaires."
+    )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="large")
+
+    with col1:
+        st.markdown("#### 01 · Global")
+        st.write(
+            "Suivre la performance commerciale à travers le chiffre "
+            "d'affaires, les coûts, la marge, les volumes et leur évolution."
+        )
+
+    with col2:
+        st.markdown("#### 02 · Produits")
+        st.write(
+            "Identifier les produits, marques et catégories qui contribuent "
+            "le plus à l'activité."
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2, gap="large")
+
+    with col1:
+        st.markdown("#### 03 · Boutiques")
+        st.write(
+            "Comparer les performances des points de vente et observer "
+            "les différences selon leur localisation."
+        )
+
+    with col2:
+        st.markdown("#### 04 · Clients")
+        st.write(
+            "Analyser les profils clients, la fidélité et les comportements "
+            "d'achat."
+        )
+
+    # ==========================================================
+    # ASSISTANT IA
+    # ==========================================================
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    st.markdown("### Assistant IA")
+
+    st.write(
+        "Une interface complémentaire permet d'interroger directement "
+        "les données en langage naturel. L'assistant traduit la question "
+        "en requête et restitue les résultats sous une forme exploitable."
+    )
+
+    # ==========================================================
+    # CONTACT
+    # ==========================================================
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    st.divider()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("### Une question ou envie d'échanger ?")
+
+    st.caption(
+        "Vous pouvez me contacter directement depuis le dashboard."
+    )
+
+    email = st.text_input(
+        "Votre adresse email (optionnel)",
+        placeholder="votre@email.com"
+    )
+
+    message = st.text_area(
+        "Message",
+        placeholder="Votre message...",
+        height=120
+    )
+
+    if st.button("✉ Me contacter"):
+
+        if not message.strip():
+            st.warning("Veuillez saisir un message.")
+
+        else:
+
+            body = message.strip()
+
+            if email.strip():
+                body += (
+                    "\n\n---\n"
+                    f"Email de contact : {email.strip()}"
+                )
+
+            subject = "Contact depuis le Chocolate Sales Dashboard"
+
+            mailto = (
+                "mailto:theo.lepere@gmail.com"
+                f"?subject={urllib.parse.quote(subject)}"
+                f"&body={urllib.parse.quote(body)}"
+            )
+
+            st.markdown(
+                f'<a href="{mailto}" target="_blank">'
+                f'Cliquez ici pour ouvrir votre messagerie'
+                f'</a>',
+                unsafe_allow_html=True
+            )
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    st.caption("Chocolate Sales Dashboard · Théo Lepère")            <p style="
                 font-size: 1.15rem;
                 line-height: 1.7;
                 color: #AAB5C4;
