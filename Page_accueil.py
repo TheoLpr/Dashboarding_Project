@@ -210,7 +210,7 @@ def page_accueil():
             "Ouvrir mon client email",
             mailto
         )                line-height:1.7;
-                max-width:760px;
+                max-width:760;
                 margin:0;
             ">
                 Un projet personnel de data analysis construit autour
