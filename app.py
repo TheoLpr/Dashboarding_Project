@@ -1269,7 +1269,7 @@ with Assistant:
     with col1:
 
         if st.button(
-            "🍫 Produits les plus vendus à Sydney",
+            "🍫 Produits les plus vendus à Sydney ce mois-ci",
             use_container_width=True
         ):
 
@@ -1286,217 +1286,102 @@ with Assistant:
         ):
 
             question_suggeree = (
-                "Quelles boutiques génèrent le plus de bénéfices en Australie ?"
+                "Quelles boutiques génèrent le plus de bénéfices ?"
             )
 
 
     with col3:
 
         if st.button(
-            "✈️ Ventes de l'aéroport de Sydney",
+            "✈️ Ventes de l'aéroport de Sydney en 2024",
             use_container_width=True
         ):
 
             question_suggeree = (
                 "Décris-moi les ventes de l'aéroport de Sydney en 2024."
             )
-
-
-    # ========================================================
-    # QUESTION LIBRE
-    # ========================================================
-
-    question_chat = st.chat_input(
-        "Posez une question sur les ventes..."
-    )
-
-
-    # Une question peut venir :
-    # - du chat
-    # - d'un bouton prédéfini
-
-    if question_chat:
-
-        question = question_chat
-
-    elif question_suggeree:
-
-        question = question_suggeree
-
-    else:
-
-        question = None
-
-
-    # ========================================================
-    # SESSION STATE
-    # ========================================================
-
+    
     if "analyse_faite" not in st.session_state:
-
         st.session_state["analyse_faite"] = False
-
-
-    # ========================================================
-    # TRAITEMENT DE LA QUESTION
-    # ========================================================
-
+    
     if question:
+     
 
         # Affichage explicite de la question envoyée à l'IA
 
         st.markdown("#### Votre question")
 
         st.info(question)
-
-
-        with st.spinner(
-            "Analyse des données en cours..."
-        ):
-
-            plan, variables = generer_plan_avec_retry(
-                question
-            )
-
-
-        # Sauvegarde du DataFrame produit par l'IA
-
+        
+        with st.spinner("Analyse en cours..."):
+    
+            plan, variables = generer_plan_avec_retry(question)
+        
+    
+        #st.write(plan["python_code"])   
+        
+        #st.subheader("Réponse")
+    
+        #st.write(plan["response"])
+    
         if "df_result" in variables:
-
-            st.session_state["df_analysis"] = variables[
-                "df_result"
-            ]
-
-
-        # Sauvegarde des résultats dans la session
-
+            st.session_state["df_analysis"] = variables["df_result"]
+            #st.dataframe(
+                #variables["df_result"],
+                #use_container_width=True
+            #)
+    
         st.session_state["plan"] = plan
-
         st.session_state["variables"] = variables
-
         st.session_state["question"] = question
-
-
-        # Nouvelle question = nouvelle analyse
-
+    
+        graph_path = None
+    
+        if plan["graph_generated"]:
+            graph_path = "graph.png"
+    
         st.session_state["analyse_faite"] = False
-
-
+    
         if "analyse" in st.session_state:
-
             del st.session_state["analyse"]
-
-
-    # ========================================================
-    # AFFICHER LA DERNIÈRE QUESTION
-    # ========================================================
-
-    elif "question" in st.session_state:
-
-        st.markdown(
-            "#### Votre question"
-        )
-
-        st.info(
-            st.session_state["question"]
-        )
-
-
-    # ========================================================
-    # AFFICHAGE DES RÉSULTATS
-    # ========================================================
-
-    if "plan" in st.session_state:
-
-        # Réponse générée par l'IA
-
-        st.write(
-            st.session_state["plan"]["response"]
-        )
-
-
-        # ----------------------------------------------------
-        # TABLEAU DE RÉSULTATS
-        # ----------------------------------------------------
-
+        
+    if (
+    "df_analysis" in st.session_state
+    and not st.session_state.get("analyse_faite", False)
+    ):
+    
+        if st.button("🧠 Interpréter"):
+    
+            analyse = analyser_resultats(
+                question=st.session_state["question"],
+                df_analysis=st.session_state["df_analysis"],
+                graph_generated=st.session_state["plan"]["graph_generated"]
+            )
+            
+            st.session_state["analyse"] = analyse
+    
+            st.session_state["analyse_faite"] = True
+    
+    if st.session_state.get("analyse_faite", True) :
+        
+        st.write( st.session_state["plan"]["response"])
+        
         if "df_analysis" in st.session_state:
-
+        
             st.dataframe(
                 st.session_state["df_analysis"],
                 use_container_width=True
-            )
-
-
-        # ----------------------------------------------------
-        # GRAPHIQUE GÉNÉRÉ PAR L'IA
-        # ----------------------------------------------------
-
+                )
+        
         if (
             st.session_state["plan"]["graph_generated"]
             and os.path.exists("graph.png")
-        ):
-
+            ):
+        
             st.image(
                 "graph.png",
                 use_container_width=True
             )
-
-
-    # ========================================================
-    # BOUTON D'INTERPRÉTATION
-    # ========================================================
-
-    if (
-        "df_analysis" in st.session_state
-        and "plan" in st.session_state
-        and not st.session_state.get(
-            "analyse_faite",
-            False
-        )
-    ):
-
-        if st.button(
-            "🧠 Interpréter"
-        ):
-
-            with st.spinner(
-                "Interprétation en cours..."
-            ):
-
-                analyse = analyser_resultats(
-                    question=st.session_state["question"],
-                    df_analysis=st.session_state["df_analysis"],
-                    graph_generated=st.session_state[
-                        "plan"
-                    ]["graph_generated"]
-                )
-
-
-            st.session_state["analyse"] = analyse
-
-            st.session_state["analyse_faite"] = True
-
-            st.rerun()
-
-
-    # ========================================================
-    # AFFICHAGE DE L'INTERPRÉTATION
-    # ========================================================
-
-    if (
-        st.session_state.get(
-            "analyse_faite",
-            False
-        )
-        and "analyse" in st.session_state
-    ):
-
-        st.markdown(
-            "### Analyse IA"
-        )
-
-        st.write(
-            st.session_state["analyse"]
-        )
-        
+    
+        st.write(st.session_state["analyse"])        
 connexion.close()
