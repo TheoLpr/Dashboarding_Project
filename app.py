@@ -4,12 +4,12 @@ import pandas as pd
 from Page_produits import calcul_nb_ref, calcul_nb_marques, calcul_nb_categories, kpi_produits, ca_par_categorie, performance_marques, classement_produits, fiche_produit
 from Calcul_periode import get_periode_sql
 from Page_boutiques import calcul_nb_boutiques, calcul_ca_moyen_boutique, top_boutique, classement_boutiques, ventes_par_ville, performance_type_magasin
-from Page_clients import calcul_nb_clients, calcul_nb_fidelises, top_clients, analyse_fidelite, segmentation_clients
+# from Page_clients import calcul_nb_clients, calcul_nb_fidelises, top_clients, analyse_fidelite, segmentation_clients
 from openai import OpenAI
 import json
 import matplotlib.pyplot as plt
 import base64
-import os
+from io import BytesIO
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -150,6 +150,48 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 client = OpenAI( api_key= st.secrets["GPT_KEY"])
+
+
+def afficher_periode_calcul(curs, periode_sql_cur, periode_sql_prec=""):
+    """Affiche les bornes de dates correspondant aux filtres SQL déjà utilisés par l'app."""
+
+    def recuperer_dates(condition):
+        if not condition:
+            return None
+
+        debut, fin = curs.execute(
+            f"""
+            SELECT MIN(ORDER_DATE), MAX(ORDER_DATE)
+            FROM SALES
+            WHERE ORDER_DATE {condition}
+            """
+        ).fetchone()
+
+        if debut is None or fin is None:
+            return None
+
+        debut = pd.to_datetime(debut).strftime("%d/%m/%Y")
+        fin = pd.to_datetime(fin).strftime("%d/%m/%Y")
+
+        return debut, fin
+
+    periode_cur = recuperer_dates(periode_sql_cur)
+    periode_prec = recuperer_dates(periode_sql_prec)
+
+    if periode_cur is None:
+        return
+
+    texte = (
+        f"📅 Période analysée : **{periode_cur[0]} → {periode_cur[1]}**"
+    )
+
+    if periode_prec is not None:
+        texte += (
+            f"  |  Comparaison : **{periode_prec[0]} → {periode_prec[1]}**"
+        )
+
+    st.caption(texte)
+
 
 def evolution_performance(connexion, periode_sql, option_periode):
 
@@ -368,24 +410,24 @@ def generer_plan(question):
 
 
 
-def analyser_resultats(question, df_analysis, graph_generated=False, graph_path="graph.png"):
+def analyser_resultats(question, df_analysis, graph_generated=False, graph_bytes=None):
 
     prompt = f"""
         Tu es un consultant Data / BI senior.
-        
+
         Question utilisateur :
-        
+
         {question}
-        
+
         Les données suivantes ont été préparées spécialement
         pour permettre l'interprétation des résultats.
-        
+
         Tableau de synthèse :
-        
+
         {df_analysis.to_markdown(index=False)}
-        
+
         Consignes :
-        
+
         - Réponds en français.
         - Sois orienté business.
         - Ne répète pas simplement les données.
@@ -403,28 +445,18 @@ def analyser_resultats(question, df_analysis, graph_generated=False, graph_path=
         }
     ]
 
-    if graph_generated:
+    if graph_generated and graph_bytes:
 
-        try:
+        image_base64 = base64.b64encode(
+            graph_bytes
+        ).decode()
 
-            with open(graph_path, "rb") as f:
-
-                image_base64 = base64.b64encode(
-                    f.read()
-                ).decode()
-
-            content.append(
-                {
-                    "type": "input_image",
-                    "image_url": f"data:image/png;base64,{image_base64}"
-                }
-            )
-
-        except Exception as e:
-
-            print(
-                f"Impossible de charger le graphique : {e}"
-            )
+        content.append(
+            {
+                "type": "input_image",
+                "image_url": f"data:image/png;base64,{image_base64}"
+            }
+        )
 
     response = client.responses.create(
         model="gpt-5-mini",
@@ -443,20 +475,48 @@ def analyser_resultats(question, df_analysis, graph_generated=False, graph_path=
     return response.output_text
 
 
-    
+
 def executer_plan(plan):
+
+    # On ferme d'abord d'éventuelles anciennes figures afin de ne jamais
+    # récupérer par erreur le graphique d'une question précédente.
+    plt.close("all")
 
     local_vars = {
         "pd": pd,
         "sqlite3": sqlite3,
         "connexion": connexion,
         "st": st,
-        "plt" : plt
+        "plt": plt
     }
 
     exec(plan["python_code"], {}, local_vars)
 
+    graph_bytes = None
+
+    if plan.get("graph_generated", False):
+
+        figures = plt.get_fignums()
+
+        if figures:
+            fig = plt.figure(figures[-1])
+
+            buffer = BytesIO()
+
+            fig.savefig(
+                buffer,
+                format="png",
+                bbox_inches="tight",
+                dpi=150
+            )
+
+            buffer.seek(0)
+            graph_bytes = buffer.getvalue()
+
+    local_vars["graph_bytes"] = graph_bytes
+
     return local_vars
+
 
 
 def generer_plan_avec_retry(question, max_retry=5):
@@ -468,9 +528,16 @@ def generer_plan_avec_retry(question, max_retry=5):
         try:
 
             plan = generer_plan(question)
-            #st.write(plan)
 
             variables = executer_plan(plan)
+
+            # Si le modèle annonce un graphique mais n'en crée finalement pas,
+            # on corrige l'information pour éviter un affichage incohérent.
+            if (
+                plan.get("graph_generated", False)
+                and variables.get("graph_bytes") is None
+            ):
+                plan["graph_generated"] = False
 
             return plan, variables
 
@@ -480,26 +547,23 @@ def generer_plan_avec_retry(question, max_retry=5):
 
             question = f"""
                         La génération précédente a échoué.
-                        
+
                         Erreur Python :
-                        
+
                         {erreur}
-                        
+
                         Corrige entièrement le JSON et le code.
-                        
+
                         Question initiale :
-                        
+
                         {question}
                         """
-            #st.write(question)
-
-            
 
     raise Exception(
         f"Impossible de générer un code valide après {max_retry} tentatives.\n\n{erreur}"
     )
-    
-    
+
+
 connexion = sqlite3.connect("chocolate_sales.db")
 curs = connexion.cursor()
 
@@ -510,7 +574,7 @@ option_periode = st.segmented_control("",
     ["Total", "Année", "Mois", "Semaine"], default = "Total"
 )
 
-Accueil, Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
+Accueil, Global, Produits, Boutiques, Assistant = st.tabs(["Accueil", "Global", "Produits", "Boutiques", "Assistant IA"])
 
 option_comparaison = ""
 
@@ -528,6 +592,22 @@ with Global :
          option_comparaison = st.segmented_control(
             "Comparer cette semaine à ", ["Même semaine de l'année précédente", "Semaine précédente"], default = "Même semaine de l'année précédente"
         )
+
+    if option_periode == "Total":
+        periode_sql_cur = "IS NOT NULL"
+        periode_sql_prec = ""
+    else:
+        periode_sql_cur, periode_sql_prec = get_periode_sql(
+            option_periode,
+            option_comparaison,
+            curs
+        )
+
+    afficher_periode_calcul(
+        curs,
+        periode_sql_cur,
+        periode_sql_prec
+    )
 
     if option_periode == "Total" :
         CA = curs.execute("Select sum(REVENUE) from Sales").fetchone()[0] #CA
@@ -720,9 +800,6 @@ with Global :
         st.dataframe(Bottom_5_produits)
         
 
-    if option_periode == "Total":
-        periode_sql_cur = "IS NOT NULL"
-        periode_sql_prec = ""
     st.subheader("Évolution de la performance")
 
     performance_df = evolution_performance(
@@ -1024,6 +1101,13 @@ with Produits:
 #        )
 
 with Boutiques:
+
+    afficher_periode_calcul(
+        curs,
+        periode_sql_cur,
+        periode_sql_prec
+    )
+
     nb_boutiques = calcul_nb_boutiques(curs)
 
     ca_moyen = calcul_ca_moyen_boutique(
@@ -1079,165 +1163,281 @@ with Boutiques:
         ville_df.set_index("CITY")
     )
 
-with Clients:
+# ========================================================
+# PAGE CLIENTS — MASQUÉE TEMPORAIREMENT
+# ========================================================
+# with Clients:
+#
+#     nb_clients = calcul_nb_clients(curs)
+#
+#     nb_fidelises = calcul_nb_fidelises(curs)
+#
+#     pct_fidelises = round(
+#         nb_fidelises / nb_clients * 100,
+#         2
+#     )
+#
+#     col1, col2, col3 = st.columns(3)
+#
+#     with col1:
+#         st.metric(
+#             "Nombre de clients",
+#             nb_clients
+#         )
+#
+#     with col2:
+#         st.metric(
+#             "Clients fidélisés",
+#             nb_fidelises
+#         )
+#
+#     with col3:
+#         st.metric(
+#             "% fidélisés",
+#             f"{pct_fidelises}%"
+#         )
+#
+#     st.subheader("Top clients")
+#
+#     clients_df = top_clients(
+#         connexion,
+#         periode_sql_cur
+#     )
+#
+#     st.dataframe(
+#         clients_df,
+#         use_container_width=True
+#     )
+#
+#     st.subheader(
+#     "Impact du programme fidélité"
+#     )
+#
+#     fidelite_df = analyse_fidelite(
+#         connexion,
+#         periode_sql_cur
+#     )
+#
+#     st.dataframe(
+#         fidelite_df,
+#         use_container_width=True
+#     )
+#
+#     st.subheader(
+#     "Segmentation des clients"
+#     )
+#
+#     segments_df = segmentation_clients(
+#         connexion,
+#         periode_sql_cur
+#     )
+#
+#     st.dataframe(
+#         segments_df,
+#         use_container_width=True
+#     )
+#
+#     st.bar_chart(
+#     segments_df["SEGMENT"].value_counts()
+#     )
+#
 
-    nb_clients = calcul_nb_clients(curs)
-    
-    nb_fidelises = calcul_nb_fidelises(curs)
-    
-    pct_fidelises = round(
-        nb_fidelises / nb_clients * 100,
-        2
-    )
-    
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric(
-            "Nombre de clients",
-            nb_clients
-        )
-    
-    with col2:
-        st.metric(
-            "Clients fidélisés",
-            nb_fidelises
-        )
-    
-    with col3:
-        st.metric(
-            "% fidélisés",
-            f"{pct_fidelises}%"
-        )
-
-    st.subheader("Top clients")
-
-    clients_df = top_clients(
-        connexion,
-        periode_sql_cur
-    )
-    
-    st.dataframe(
-        clients_df,
-        use_container_width=True
-    )
-
-    st.subheader(
-    "Impact du programme fidélité"
-    )
-    
-    fidelite_df = analyse_fidelite(
-        connexion,
-        periode_sql_cur
-    )
-    
-    st.dataframe(
-        fidelite_df,
-        use_container_width=True
-    )
-
-    st.subheader(
-    "Segmentation des clients"
-    )
-
-    segments_df = segmentation_clients(
-        connexion,
-        periode_sql_cur
-    )
-    
-    st.dataframe(
-        segments_df,
-        use_container_width=True
-    )
-
-    st.bar_chart(
-    segments_df["SEGMENT"].value_counts()
-    )
-    
 with Assistant:
 
     st.subheader("Assistant IA")
 
-    question = st.chat_input(
-    "Pose une question sur les ventes"
+    st.write(
+        """
+        Interrogez directement les données de ventes en langage naturel.
+        L'assistant génère l'analyse nécessaire à partir de la base de données.
+        """
     )
-    
+
+    # ========================================================
+    # QUESTIONS SUGGÉRÉES
+    # ========================================================
+
+    st.caption("Suggestions")
+
+    col1, col2, col3 = st.columns(3)
+
+    question_suggeree = None
+
+    with col1:
+
+        if st.button(
+            "🍫 Produits les plus vendus à Sydney",
+            use_container_width=True
+        ):
+            question_suggeree = (
+                "Quels sont les produits les plus vendus à Sydney ce mois-ci ?"
+            )
+
+    with col2:
+
+        if st.button(
+            "💰 Boutiques les plus rentables",
+            use_container_width=True
+        ):
+            question_suggeree = (
+                "Quelles boutiques génèrent le plus de bénéfices en Australie ?"
+            )
+
+    with col3:
+
+        if st.button(
+            "✈️ Ventes de l'aéroport de Sydney",
+            use_container_width=True
+        ):
+            question_suggeree = (
+                "Décris-moi les ventes de l'aéroport de Sydney en 2024."
+            )
+
+    # ========================================================
+    # QUESTION LIBRE
+    # ========================================================
+
+    question_chat = st.chat_input(
+        "Posez une question sur les ventes..."
+    )
+
+    if question_chat:
+        question = question_chat
+    elif question_suggeree:
+        question = question_suggeree
+    else:
+        question = None
+
+    # ========================================================
+    # SESSION STATE
+    # ========================================================
+
     if "analyse_faite" not in st.session_state:
         st.session_state["analyse_faite"] = False
 
+    # ========================================================
+    # TRAITEMENT DE LA QUESTION
+    # ========================================================
+
     if question:
 
-        with st.spinner("Analyse en cours..."):
-    
-            plan, variables = generer_plan_avec_retry(question)
-        
+        st.markdown("#### Votre question")
+        st.info(question)
 
-        #st.write(plan["python_code"])   
-        
-        #st.subheader("Réponse")
-    
-        #st.write(plan["response"])
+        with st.spinner("Analyse des données en cours..."):
 
-        if "df_result" in variables:
-            st.session_state["df_analysis"] = variables["df_result"]
-            #st.dataframe(
-                #variables["df_result"],
-                #use_container_width=True
-            #)
+            plan, variables = generer_plan_avec_retry(
+                question
+            )
 
         st.session_state["plan"] = plan
         st.session_state["variables"] = variables
         st.session_state["question"] = question
 
-        graph_path = None
+        # On nettoie les résultats précédents avant d'enregistrer les nouveaux.
+        if "df_analysis" in st.session_state:
+            del st.session_state["df_analysis"]
 
-        if plan["graph_generated"]:
-            graph_path = "graph.png"
+        if "df_result" in variables:
+            st.session_state["df_analysis"] = variables["df_result"]
+
+        st.session_state["graph_bytes"] = variables.get(
+            "graph_bytes"
+        )
 
         st.session_state["analyse_faite"] = False
 
         if "analyse" in st.session_state:
             del st.session_state["analyse"]
-        
-    if (
-    "df_analysis" in st.session_state
-    and not st.session_state.get("analyse_faite", False)
-    ):
 
-        if st.button("🧠 Interpréter"):
-    
-            analyse = analyser_resultats(
-                question=st.session_state["question"],
-                df_analysis=st.session_state["df_analysis"],
-                graph_generated=st.session_state["plan"]["graph_generated"]
-            )
-            
-            st.session_state["analyse"] = analyse
+    # ========================================================
+    # AFFICHAGE DE LA DERNIÈRE QUESTION
+    # ========================================================
 
-            st.session_state["analyse_faite"] = True
+    elif "question" in st.session_state:
 
-    if st.session_state.get("analyse_faite", True) :
-        
-        st.write( st.session_state["plan"]["response"])
-        
+        st.markdown("#### Votre question")
+        st.info(
+            st.session_state["question"]
+        )
+
+    # ========================================================
+    # RÉSULTATS GÉNÉRÉS
+    # ========================================================
+
+    if "plan" in st.session_state:
+
+        st.write(
+            st.session_state["plan"]["response"]
+        )
+
         if "df_analysis" in st.session_state:
-        
+
             st.dataframe(
                 st.session_state["df_analysis"],
                 use_container_width=True
-                )
-        
-        if (
-            st.session_state["plan"]["graph_generated"]
-            and os.path.exists("graph.png")
-            ):
-        
+            )
+
+        if st.session_state.get("graph_bytes"):
+
             st.image(
-                "graph.png",
+                st.session_state["graph_bytes"],
                 use_container_width=True
             )
 
-        st.write(st.session_state["analyse"])
+    # ========================================================
+    # INTERPRÉTATION IA
+    # ========================================================
 
-        
+    if (
+        "df_analysis" in st.session_state
+        and "plan" in st.session_state
+        and not st.session_state.get(
+            "analyse_faite",
+            False
+        )
+    ):
+
+        if st.button("🧠 Interpréter"):
+
+            with st.spinner(
+                "Interprétation en cours..."
+            ):
+
+                analyse = analyser_resultats(
+                    question=st.session_state["question"],
+                    df_analysis=st.session_state["df_analysis"],
+                    graph_generated=st.session_state["plan"].get(
+                        "graph_generated",
+                        False
+                    ),
+                    graph_bytes=st.session_state.get(
+                        "graph_bytes"
+                    )
+                )
+
+            st.session_state["analyse"] = analyse
+            st.session_state["analyse_faite"] = True
+
+            st.rerun()
+
+    # ========================================================
+    # AFFICHAGE DE L'INTERPRÉTATION
+    # ========================================================
+
+    if (
+        st.session_state.get(
+            "analyse_faite",
+            False
+        )
+        and "analyse" in st.session_state
+    ):
+
+        st.markdown("### Analyse IA")
+
+        st.write(
+            st.session_state["analyse"]
+        )
+
+
 connexion.close()
