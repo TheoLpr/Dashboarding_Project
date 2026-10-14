@@ -66,8 +66,7 @@ Cette organisation permet d'analyser les ventes selon plusieurs axes sans dupliq
 
 ### Schéma de la base de données
 
-![Schéma disponible dans le dépôt sous le nom Schema.png](Schema.png)
-
+<img src="schema.png" alt="schema disponible dans le repo" width="500">
 
 La table `SALES` constitue le cœur du modèle. Chaque transaction peut ainsi être enrichie par jointure avec :
 
