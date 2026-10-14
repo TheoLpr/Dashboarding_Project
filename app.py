@@ -498,74 +498,7 @@ def generer_plan_avec_retry(question, max_retry=5):
     raise Exception(
         f"Impossible de générer un code valide après {max_retry} tentatives.\n\n{erreur}"
     )
-
-
-def afficher_periode_calcul(
-    curs,
-    periode_sql_cur,
-    periode_sql_prec=None
-):
-
-    # Période actuelle
-    date_min_cur, date_max_cur = curs.execute(
-        f"""
-        SELECT
-            MIN(ORDER_DATE),
-            MAX(ORDER_DATE)
-        FROM SALES
-        WHERE ORDER_DATE {periode_sql_cur}
-        """
-    ).fetchone()
-
-    if date_min_cur is None:
-        return
-
-
-    date_min_cur = pd.to_datetime(
-        date_min_cur
-    ).strftime("%d/%m/%Y")
-
-    date_max_cur = pd.to_datetime(
-        date_max_cur
-    ).strftime("%d/%m/%Y")
-
-
-    texte = (
-        f"Période analysée : "
-        f"**{date_min_cur} → {date_max_cur}**"
-    )
-
-
-    # Période de comparaison
-    if periode_sql_prec:
-
-        date_min_prec, date_max_prec = curs.execute(
-            f"""
-            SELECT
-                MIN(ORDER_DATE),
-                MAX(ORDER_DATE)
-            FROM SALES
-            WHERE ORDER_DATE {periode_sql_prec}
-            """
-        ).fetchone()
-
-        if date_min_prec is not None:
-
-            date_min_prec = pd.to_datetime(
-                date_min_prec
-            ).strftime("%d/%m/%Y")
-
-            date_max_prec = pd.to_datetime(
-                date_max_prec
-            ).strftime("%d/%m/%Y")
-
-            texte += (
-                f" · Comparaison : "
-                f"**{date_min_prec} → {date_max_prec}**"
-            )
-
-
-    st.caption(texte)
+    
     
 connexion = sqlite3.connect("chocolate_sales.db")
 curs = connexion.cursor()
@@ -577,9 +510,7 @@ option_periode = st.segmented_control("",
     ["Total", "Année", "Mois", "Semaine"], default = "Total"
 )
 
-Accueil, Global, Produits, Boutiques, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Assistant IA"])
-
-#Client désactivé pour le moment
+Accueil, Global, Produits, Boutiques, Clients, Assistant = st.tabs(["Accueil","Global", "Produits", "Boutiques", "Clients", "Assistant IA"])
 
 option_comparaison = ""
 
@@ -660,11 +591,6 @@ with Global :
 
     elif option_periode == "Année" or  option_periode == "Mois" or  option_periode == "Semaine" :
         periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
-        afficher_periode_calcul(
-        curs,
-        periode_sql_cur,
-        periode_sql_prec
-        )
         
         CA_cur = curs.execute(f"Select sum(REVENUE) from Sales where ORDER_DATE {periode_sql_cur}").fetchone()[0] #CA
         CA_prec = curs.execute(f"Select sum(REVENUE) from Sales where ORDER_DATE {periode_sql_prec}").fetchone()[0] #CA
@@ -797,12 +723,6 @@ with Global :
     if option_periode == "Total":
         periode_sql_cur = "IS NOT NULL"
         periode_sql_prec = ""
-    
-    afficher_periode_calcul(
-        curs,
-        periode_sql_cur,
-        periode_sql_prec
-    )
     st.subheader("Évolution de la performance")
 
     performance_df = evolution_performance(
@@ -932,11 +852,7 @@ with Global :
     
 with Produits:
     periode_sql_cur, periode_sql_prec = get_periode_sql(option_periode,option_comparaison, curs)
-    afficher_periode_calcul(
-        curs,
-        periode_sql_cur,
-        periode_sql_prec
-    )
+    
     nb_ref = calcul_nb_ref(curs)
     nb_marques = calcul_nb_marques(curs)
     nb_categories = calcul_nb_categories(curs)
@@ -1108,11 +1024,6 @@ with Produits:
 #        )
 
 with Boutiques:
-    afficher_periode_calcul(
-        curs,
-        periode_sql_cur,
-        periode_sql_prec
-    )
     nb_boutiques = calcul_nb_boutiques(curs)
 
     ca_moyen = calcul_ca_moyen_boutique(
@@ -1168,197 +1079,123 @@ with Boutiques:
         ville_df.set_index("CITY")
     )
 
-#with Clients:
+with Clients:
 
- #   nb_clients = calcul_nb_clients(curs)
+    nb_clients = calcul_nb_clients(curs)
     
- #   nb_fidelises = calcul_nb_fidelises(curs)
+    nb_fidelises = calcul_nb_fidelises(curs)
     
- #   pct_fidelises = round(
- #       nb_fidelises / nb_clients * 100,
- #       2
- #   )
+    pct_fidelises = round(
+        nb_fidelises / nb_clients * 100,
+        2
+    )
     
- #   col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
- #   with col1:
- #       st.metric(
- #           "Nombre de clients",
- #           nb_clients
- #       )
- #   
- #   with col2:
- #       st.metric(
- #           "Clients fidélisés",
- #           nb_fidelises
- #       )
- #   
- #   with col3:
- #       st.metric(
- #           "% fidélisés",
-  #          f"{pct_fidelises}%"
-  #      )
-
- #   st.subheader("Top clients")
-
- #   clients_df = top_clients(
- #       connexion,
- #       periode_sql_cur
- #   )
- #   
- #   st.dataframe(
- #       clients_df,
- #       use_container_width=True
- #   )
-
- #   st.subheader(
- #   "Impact du programme fidélité"
- #   )
+    with col1:
+        st.metric(
+            "Nombre de clients",
+            nb_clients
+        )
     
- #   fidelite_df = analyse_fidelite(
- #       connexion,
- #       periode_sql_cur
- #   )
+    with col2:
+        st.metric(
+            "Clients fidélisés",
+            nb_fidelises
+        )
     
- #   st.dataframe(
- #       fidelite_df,
- #       use_container_width=True
- #   )
+    with col3:
+        st.metric(
+            "% fidélisés",
+            f"{pct_fidelises}%"
+        )
 
- #   st.subheader(
- #   "Segmentation des clients"
- #   )
+    st.subheader("Top clients")
 
- #   segments_df = segmentation_clients(
- #       connexion,
- #       periode_sql_cur
- #   )
+    clients_df = top_clients(
+        connexion,
+        periode_sql_cur
+    )
     
- #   st.dataframe(
- #       segments_df,
- #       use_container_width=True
- #   )
+    st.dataframe(
+        clients_df,
+        use_container_width=True
+    )
 
- #   st.bar_chart(
- #   segments_df["SEGMENT"].value_counts()
- #   )
+    st.subheader(
+    "Impact du programme fidélité"
+    )
+    
+    fidelite_df = analyse_fidelite(
+        connexion,
+        periode_sql_cur
+    )
+    
+    st.dataframe(
+        fidelite_df,
+        use_container_width=True
+    )
+
+    st.subheader(
+    "Segmentation des clients"
+    )
+
+    segments_df = segmentation_clients(
+        connexion,
+        periode_sql_cur
+    )
+    
+    st.dataframe(
+        segments_df,
+        use_container_width=True
+    )
+
+    st.bar_chart(
+    segments_df["SEGMENT"].value_counts()
+    )
     
 with Assistant:
 
     st.subheader("Assistant IA")
 
-    st.write(
-        """
-        Interrogez directement les données de ventes en langage naturel.
-        L'assistant génère l'analyse nécessaire à partir de la base de données.
-        """
+    question = st.chat_input(
+    "Pose une question sur les ventes"
     )
-
-
-    # ========================================================
-    # QUESTIONS SUGGÉRÉES
-    # ========================================================
-
-    st.caption("Suggestions")
-
-    col1, col2, col3 = st.columns(3)
-
-    question_suggeree = None
-
-
-    with col1:
-
-        if st.button(
-            "🍫 Produits les plus vendus à Sydney ce mois-ci",
-            use_container_width=True
-        ):
-
-            question_suggeree = (
-                "Quels sont les produits les plus vendus à Sydney ce mois-ci ?"
-            )
-
-
-    with col2:
-
-        if st.button(
-            "💰 Boutiques les plus rentables",
-            use_container_width=True
-        ):
-
-            question_suggeree = (
-                "Quelles boutiques génèrent le plus de bénéfices ?"
-            )
-
-
-    with col3:
-
-        if st.button(
-            "✈️ Ventes de l'aéroport de Sydney en 2024",
-            use_container_width=True
-        ):
-
-            question_suggeree = (
-                "Décris-moi les ventes de l'aéroport de Sydney en 2024."
-            )
     
     if "analyse_faite" not in st.session_state:
         st.session_state["analyse_faite"] = False
 
-    question_chat = st.chat_input(
-    "Pose une question sur les ventes"
-    )
-
-    if question_chat:
-
-        question = question_chat
-
-    elif question_suggeree:
-
-        question = question_suggeree
-
-    else:
-
-        question = None
-        
-    
     if question:
-     
 
-        # Affichage explicite de la question envoyée à l'IA
-
-        st.markdown("#### Votre question")
-
-        st.info(question)
-        
         with st.spinner("Analyse en cours..."):
     
             plan, variables = generer_plan_avec_retry(question)
         
-    
+
         #st.write(plan["python_code"])   
         
         #st.subheader("Réponse")
     
         #st.write(plan["response"])
-    
+
         if "df_result" in variables:
             st.session_state["df_analysis"] = variables["df_result"]
             #st.dataframe(
                 #variables["df_result"],
                 #use_container_width=True
             #)
-    
+
         st.session_state["plan"] = plan
         st.session_state["variables"] = variables
         st.session_state["question"] = question
-    
+
         graph_path = None
-    
+
         if plan["graph_generated"]:
             graph_path = "graph.png"
-    
+
         st.session_state["analyse_faite"] = False
-    
+
         if "analyse" in st.session_state:
             del st.session_state["analyse"]
         
@@ -1366,7 +1203,7 @@ with Assistant:
     "df_analysis" in st.session_state
     and not st.session_state.get("analyse_faite", False)
     ):
-    
+
         if st.button("🧠 Interpréter"):
     
             analyse = analyser_resultats(
@@ -1376,9 +1213,9 @@ with Assistant:
             )
             
             st.session_state["analyse"] = analyse
-    
+
             st.session_state["analyse_faite"] = True
-    
+
     if st.session_state.get("analyse_faite", True) :
         
         st.write( st.session_state["plan"]["response"])
@@ -1399,6 +1236,8 @@ with Assistant:
                 "graph.png",
                 use_container_width=True
             )
-    
-        st.write(st.session_state["analyse"])        
+
+        st.write(st.session_state["analyse"])
+
+        
 connexion.close()
