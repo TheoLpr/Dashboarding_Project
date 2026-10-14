@@ -182,7 +182,7 @@ def afficher_periode_calcul(curs, periode_sql_cur, periode_sql_prec=""):
         return
 
     texte = (
-        f"📅 Période analysée : **{periode_cur[0]} → {periode_cur[1]}**"
+        f"Période analysée : **{periode_cur[0]} → {periode_cur[1]}**"
     )
 
     if periode_prec is not None:
@@ -1243,6 +1243,19 @@ with Boutiques:
 #
 
 with Assistant:
+
+    st.write("TEST MATPLOTLIB")
+
+    fig_test, ax_test = plt.subplots()
+    
+    ax_test.bar(
+        ["A", "B", "C"],
+        [10, 20, 15]
+    )
+    
+    ax_test.set_title("Test graphique")
+    
+    st.pyplot(fig_test)
 
     st.subheader("Assistant IA")
 
