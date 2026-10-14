@@ -1263,7 +1263,6 @@ with Assistant:
 
     col1, col2, col3 = st.columns(3)
 
-
     question_suggeree = None
 
 
@@ -1294,7 +1293,7 @@ with Assistant:
     with col3:
 
         if st.button(
-            "✈️ Performance des boutiques de l'aéroport de Sydney sur l'année",
+            "✈️ Ventes de l'aéroport de Sydney",
             use_container_width=True
         ):
 
@@ -1335,9 +1334,7 @@ with Assistant:
 
     if "analyse_faite" not in st.session_state:
 
-        st.session_state[
-            "analyse_faite"
-        ] = False
+        st.session_state["analyse_faite"] = False
 
 
     # ========================================================
@@ -1350,63 +1347,44 @@ with Assistant:
 
         st.markdown("#### Votre question")
 
-        st.info(
-            question
-        )
+        st.info(question)
 
 
         with st.spinner(
             "Analyse des données en cours..."
         ):
 
-            plan, variables = (
-                generer_plan_avec_retry(
-                    question
-                )
+            plan, variables = generer_plan_avec_retry(
+                question
             )
 
 
+        # Sauvegarde du DataFrame produit par l'IA
+
         if "df_result" in variables:
 
-            st.session_state[
-                "df_analysis"
-            ] = variables[
+            st.session_state["df_analysis"] = variables[
                 "df_result"
             ]
 
 
-        st.session_state[
-            "plan"
-        ] = plan
+        # Sauvegarde des résultats dans la session
 
-        st.session_state[
-            "variables"
-        ] = variables
+        st.session_state["plan"] = plan
 
-        st.session_state[
-            "question"
-        ] = question
+        st.session_state["variables"] = variables
+
+        st.session_state["question"] = question
 
 
-        if plan[
-            "graph_generated"
-        ]:
+        # Nouvelle question = nouvelle analyse
 
-            graph_path = (
-                "graph.png"
-            )
-
-
-        st.session_state[
-            "analyse_faite"
-        ] = False
+        st.session_state["analyse_faite"] = False
 
 
         if "analyse" in st.session_state:
 
-            del st.session_state[
-                "analyse"
-            ]
+            del st.session_state["analyse"]
 
 
     # ========================================================
@@ -1420,37 +1398,26 @@ with Assistant:
         )
 
         st.info(
-            st.session_state[
-                "question"
-            ]
+            st.session_state["question"]
         )
 
 
     # ========================================================
-    # INTERPRÉTATION IA
+    # AFFICHAGE DES RÉSULTATS
     # ========================================================
 
-    if (
-    "df_analysis" in st.session_state
-    and not st.session_state.get("analyse_faite", False)
-    ):
+    if "plan" in st.session_state:
 
-    if st.button("🧠 Interpréter"):
+        # Réponse générée par l'IA
 
-        analyse = analyser_resultats(
-            question=st.session_state["question"],
-            df_analysis=st.session_state["df_analysis"],
-            graph_generated=st.session_state["plan"]["graph_generated"]
+        st.write(
+            st.session_state["plan"]["response"]
         )
 
-        st.session_state["analyse"] = analyse
 
-        st.session_state["analyse_faite"] = True
-
-
-    if st.session_state.get("analyse_faite", True):
-
-        st.write(st.session_state["plan"]["response"])
+        # ----------------------------------------------------
+        # TABLEAU DE RÉSULTATS
+        # ----------------------------------------------------
 
         if "df_analysis" in st.session_state:
 
@@ -1458,6 +1425,11 @@ with Assistant:
                 st.session_state["df_analysis"],
                 use_container_width=True
             )
+
+
+        # ----------------------------------------------------
+        # GRAPHIQUE GÉNÉRÉ PAR L'IA
+        # ----------------------------------------------------
 
         if (
             st.session_state["plan"]["graph_generated"]
@@ -1469,6 +1441,62 @@ with Assistant:
                 use_container_width=True
             )
 
-        st.write(st.session_state["analyse"])
+
+    # ========================================================
+    # BOUTON D'INTERPRÉTATION
+    # ========================================================
+
+    if (
+        "df_analysis" in st.session_state
+        and "plan" in st.session_state
+        and not st.session_state.get(
+            "analyse_faite",
+            False
+        )
+    ):
+
+        if st.button(
+            "🧠 Interpréter"
+        ):
+
+            with st.spinner(
+                "Interprétation en cours..."
+            ):
+
+                analyse = analyser_resultats(
+                    question=st.session_state["question"],
+                    df_analysis=st.session_state["df_analysis"],
+                    graph_generated=st.session_state[
+                        "plan"
+                    ]["graph_generated"]
+                )
+
+
+            st.session_state["analyse"] = analyse
+
+            st.session_state["analyse_faite"] = True
+
+            st.rerun()
+
+
+    # ========================================================
+    # AFFICHAGE DE L'INTERPRÉTATION
+    # ========================================================
+
+    if (
+        st.session_state.get(
+            "analyse_faite",
+            False
+        )
+        and "analyse" in st.session_state
+    ):
+
+        st.markdown(
+            "### Analyse IA"
+        )
+
+        st.write(
+            st.session_state["analyse"]
+        )
         
 connexion.close()
