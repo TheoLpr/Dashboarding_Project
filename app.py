@@ -1402,7 +1402,6 @@ with Assistant:
             st.session_state["analyse"] = analyse
             st.session_state["analyse_faite"] = True
 
-            st.rerun()
 
     # ========================================================
     # AFFICHAGE DE L'INTERPRÉTATION
