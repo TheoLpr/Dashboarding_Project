@@ -1275,8 +1275,7 @@ with Assistant:
         ):
 
             question_suggeree = (
-                "Quels sont les produits les plus vendus "
-                "à Sydney ce mois-ci ?"
+                "Quels sont les produits les plus vendus à Sydney ce mois-ci ?"
             )
 
 
@@ -1288,21 +1287,19 @@ with Assistant:
         ):
 
             question_suggeree = (
-                "Quelles boutiques génèrent le plus "
-                "de bénéfices en Australie ?"
+                "Quelles boutiques génèrent le plus de bénéfices en Australie ?"
             )
 
 
     with col3:
 
         if st.button(
-            "✈️ Performance des boutiques d'aéroport",
+            "✈️ Performance des boutiques de l'aéroport de Sydney sur l'année",
             use_container_width=True
         ):
 
             question_suggeree = (
-                "Quelle boutique située dans un aéroport "
-                "réalise le plus de ventes ?"
+                "Décris-moi les ventes de l'aéroport de Sydney en 2024."
             )
 
 
@@ -1434,96 +1431,37 @@ with Assistant:
     # ========================================================
 
     if (
-        "df_analysis"
-        in st.session_state
-
-        and not st.session_state.get(
-            "analyse_faite",
-            False
-        )
+    "df_analysis" in st.session_state
+    and not st.session_state.get("analyse_faite", False)
     ):
 
-        if st.button(
-            "🧠 Interpréter les résultats"
-        ):
+    if st.button("🧠 Interpréter"):
 
-            with st.spinner(
-                "Interprétation en cours..."
-            ):
-
-                analyse = analyser_resultats(
-
-                    question=st.session_state[
-                        "question"
-                    ],
-
-                    df_analysis=st.session_state[
-                        "df_analysis"
-                    ],
-
-                    graph_generated=st.session_state[
-                        "plan"
-                    ][
-                        "graph_generated"
-                    ]
-                )
-
-
-            st.session_state[
-                "analyse"
-            ] = analyse
-
-            st.session_state[
-                "analyse_faite"
-            ] = True
-
-
-    # ========================================================
-    # RÉSULTATS
-    # ========================================================
-
-    if st.session_state.get(
-        "analyse_faite",
-        False
-    ):
-
-        st.markdown(
-            "### Résultats"
+        analyse = analyser_resultats(
+            question=st.session_state["question"],
+            df_analysis=st.session_state["df_analysis"],
+            graph_generated=st.session_state["plan"]["graph_generated"]
         )
 
+        st.session_state["analyse"] = analyse
 
-        st.write(
-            st.session_state[
-                "plan"
-            ][
-                "response"
-            ]
-        )
+        st.session_state["analyse_faite"] = True
 
 
-        if (
-            "df_analysis"
-            in st.session_state
-        ):
+    if st.session_state.get("analyse_faite", True):
+
+        st.write(st.session_state["plan"]["response"])
+
+        if "df_analysis" in st.session_state:
 
             st.dataframe(
-                st.session_state[
-                    "df_analysis"
-                ],
+                st.session_state["df_analysis"],
                 use_container_width=True
             )
 
-
         if (
-            st.session_state[
-                "plan"
-            ][
-                "graph_generated"
-            ]
-
-            and os.path.exists(
-                "graph.png"
-            )
+            st.session_state["plan"]["graph_generated"]
+            and os.path.exists("graph.png")
         ):
 
             st.image(
@@ -1531,16 +1469,6 @@ with Assistant:
                 use_container_width=True
             )
 
-
-        st.markdown(
-            "### Analyse IA"
-        )
-
-        st.write(
-            st.session_state[
-                "analyse"
-            ]
-        )
-
+        st.write(st.session_state["analyse"])
         
 connexion.close()
