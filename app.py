@@ -14,6 +14,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from Page_accueil import page_accueil
+import plotly.express as px
 
 
 
@@ -1244,18 +1245,19 @@ with Boutiques:
 
 with Assistant:
 
-    st.write("TEST MATPLOTLIB")
-
-    fig_test, ax_test = plt.subplots()
+    df_test = pd.DataFrame({
+        "Produit": ["A", "B", "C"],
+        "Ventes": [10, 20, 15]
+    })
     
-    ax_test.bar(
-        ["A", "B", "C"],
-        [10, 20, 15]
+    fig_test = px.bar(
+        df_test,
+        x="Produit",
+        y="Ventes",
+        title="Test graphique Plotly"
     )
     
-    ax_test.set_title("Test graphique")
-    
-    st.pyplot(fig_test)
+    st.plotly_chart(fig_test, use_container_width=True)
 
     st.subheader("Assistant IA")
 
