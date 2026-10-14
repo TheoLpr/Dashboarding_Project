@@ -14,7 +14,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from Page_accueil import page_accueil
-import plotly.express as px
 
 
 
@@ -372,20 +371,15 @@ def generer_plan(question):
             - false sinon
             - Si graph_generated vaut true :
 
-                le code doit enregistrer le dernier graphique
-                dans un fichier nommé graph.png
-                
-                Exemple :
-                plt.savefig("graph.png", bbox_inches="tight")
-
-                il doit également inclure l'affichage streamlit du graphique
+                le code doit générer le graphique en la stockant dans la variable fig
             
             Variables déjà disponibles :
             
             - pd
             - connexion
             - st
-            - plt
+            - plotly.express as px
+            - plotly.graph_objects as go
             
             Contraintes :
             
@@ -479,45 +473,31 @@ def analyser_resultats(question, df_analysis, graph_generated=False, graph_bytes
 
 def executer_plan(plan):
 
-    # On ferme d'abord d'éventuelles anciennes figures afin de ne jamais
-    # récupérer par erreur le graphique d'une question précédente.
-    plt.close("all")
-
     local_vars = {
         "pd": pd,
         "sqlite3": sqlite3,
         "connexion": connexion,
         "st": st,
-        "plt": plt
+        "px": px,
+        "go": go
     }
 
-    exec(plan["python_code"], {}, local_vars)
+    exec(
+        plan["python_code"],
+        {},
+        local_vars
+    )
 
-    graph_bytes = None
+    # Récupération du dataframe
+    df_result = local_vars.get("df_result")
 
-    if plan.get("graph_generated", False):
+    # Récupération du graphique Plotly généré par l'IA
+    fig = local_vars.get("fig")
 
-        figures = plt.get_fignums()
-
-        if figures:
-            fig = plt.figure(figures[-1])
-
-            buffer = BytesIO()
-
-            fig.savefig(
-                buffer,
-                format="png",
-                bbox_inches="tight",
-                dpi=150
-            )
-
-            buffer.seek(0)
-            graph_bytes = buffer.getvalue()
-
-    local_vars["graph_bytes"] = graph_bytes
+    local_vars["df_result"] = df_result
+    local_vars["fig"] = fig
 
     return local_vars
-
 
 
 def generer_plan_avec_retry(question, max_retry=5):
@@ -1344,6 +1324,8 @@ with Assistant:
             plan, variables = generer_plan_avec_retry(
                 question
             )
+            fig = variables.get("fig")
+            st.session_state["fig"] = variables.get("fig")
 
         st.session_state["plan"] = plan
         st.session_state["variables"] = variables
@@ -1393,10 +1375,10 @@ with Assistant:
                 use_container_width=True
             )
 
-        if st.session_state.get("graph_bytes"):
+        if st.session_state.get("fig") is not None:
 
-            st.image(
-                st.session_state["graph_bytes"],
+            st.plotly_chart(
+                st.session_state["fig"],
                 use_container_width=True
             )
 
