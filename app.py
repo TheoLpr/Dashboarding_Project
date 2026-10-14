@@ -1225,20 +1225,6 @@ with Boutiques:
 
 with Assistant:
 
-    df_test = pd.DataFrame({
-        "Produit": ["A", "B", "C"],
-        "Ventes": [10, 20, 15]
-    })
-    
-    fig_test = px.bar(
-        df_test,
-        x="Produit",
-        y="Ventes",
-        title="Test graphique Plotly"
-    )
-    
-    st.plotly_chart(fig_test, use_container_width=True)
-
     st.subheader("Assistant IA")
 
     st.write(
@@ -1351,36 +1337,36 @@ with Assistant:
     # AFFICHAGE DE LA DERNIÈRE QUESTION
     # ========================================================
 
-    elif "question" in st.session_state:
+    #elif "question" in st.session_state:
 
-        st.markdown("#### Votre question")
-        st.info(
-            st.session_state["question"]
-        )
+     #   st.markdown("#### Votre question")
+     #   st.info(
+     #       st.session_state["question"]
+     #   )
 
     # ========================================================
     # RÉSULTATS GÉNÉRÉS
     # ========================================================
 
-    if "plan" in st.session_state:
+    #if "plan" in st.session_state:
 
-        st.write(
-            st.session_state["plan"]["response"]
-        )
+    #    st.write(
+    #        st.session_state["plan"]["response"]
+    #    )
 
-        if "df_analysis" in st.session_state:
+     #   if "df_analysis" in st.session_state:
 
-            st.dataframe(
-                st.session_state["df_analysis"],
-                use_container_width=True
-            )
+      #      st.dataframe(
+      #         st.session_state["df_analysis"],
+      #          use_container_width=True
+      #      )
 
-        if st.session_state.get("fig") is not None:
+      #  if st.session_state.get("fig") is not None:
 
-            st.plotly_chart(
-                st.session_state["fig"],
-                use_container_width=True
-            )
+       #     st.plotly_chart(
+       #         st.session_state["fig"],
+       #         use_container_width=True
+       #     )
 
     # ========================================================
     # INTERPRÉTATION IA
