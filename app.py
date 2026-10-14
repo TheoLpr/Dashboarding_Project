@@ -1303,6 +1303,23 @@ with Assistant:
     
     if "analyse_faite" not in st.session_state:
         st.session_state["analyse_faite"] = False
+
+    question_chat = st.chat_input(
+    "Pose une question sur les ventes"
+    )
+
+    if question_chat:
+
+        question = question_chat
+
+    elif question_suggeree:
+
+        question = question_suggeree
+
+    else:
+
+        question = None
+        
     
     if question:
      
