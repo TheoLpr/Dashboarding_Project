@@ -1284,8 +1284,10 @@ with Assistant:
 
     if question_chat:
         question = question_chat
+
     elif question_suggeree:
         question = question_suggeree
+
     else:
         question = None
 
@@ -1310,66 +1312,23 @@ with Assistant:
             plan, variables = generer_plan_avec_retry(
                 question
             )
-            fig = variables.get("fig")
-            st.session_state["fig"] = variables.get("fig")
 
+        # Sauvegarde des résultats
         st.session_state["plan"] = plan
         st.session_state["variables"] = variables
         st.session_state["question"] = question
 
-        # On nettoie les résultats précédents avant d'enregistrer les nouveaux.
-        if "df_analysis" in st.session_state:
-            del st.session_state["df_analysis"]
-
         if "df_result" in variables:
             st.session_state["df_analysis"] = variables["df_result"]
 
-        st.session_state["graph_bytes"] = variables.get(
-            "graph_bytes"
-        )
+        # Sauvegarde du graphique Plotly
+        st.session_state["fig"] = variables.get("fig")
 
+        # Une nouvelle question nécessite une nouvelle interprétation
         st.session_state["analyse_faite"] = False
 
-        if "analyse" in st.session_state:
-            del st.session_state["analyse"]
-
     # ========================================================
-    # AFFICHAGE DE LA DERNIÈRE QUESTION
-    # ========================================================
-
-    #elif "question" in st.session_state:
-
-     #   st.markdown("#### Votre question")
-     #   st.info(
-     #       st.session_state["question"]
-     #   )
-
-    # ========================================================
-    # RÉSULTATS GÉNÉRÉS
-    # ========================================================
-
-    #if "plan" in st.session_state:
-
-    #    st.write(
-    #        st.session_state["plan"]["response"]
-    #    )
-
-     #   if "df_analysis" in st.session_state:
-
-      #      st.dataframe(
-      #         st.session_state["df_analysis"],
-      #          use_container_width=True
-      #      )
-
-      #  if st.session_state.get("fig") is not None:
-
-       #     st.plotly_chart(
-       #         st.session_state["fig"],
-       #         use_container_width=True
-       #     )
-
-    # ========================================================
-    # INTERPRÉTATION IA
+    # BOUTON INTERPRÉTER
     # ========================================================
 
     if (
@@ -1390,36 +1349,57 @@ with Assistant:
                 analyse = analyser_resultats(
                     question=st.session_state["question"],
                     df_analysis=st.session_state["df_analysis"],
-                    graph_generated=st.session_state["plan"].get(
-                        "graph_generated",
-                        False
-                    ),
-                    graph_bytes=st.session_state.get(
-                        "graph_bytes"
-                    )
+                    graph_generated=False,
+                    graph_bytes=None
                 )
 
             st.session_state["analyse"] = analyse
             st.session_state["analyse_faite"] = True
 
-
     # ========================================================
-    # AFFICHAGE DE L'INTERPRÉTATION
+    # AFFICHAGE DES RÉSULTATS
     # ========================================================
 
-    if (
-        st.session_state.get(
-            "analyse_faite",
-            False
-        )
-        and "analyse" in st.session_state
+    if st.session_state.get(
+        "analyse_faite",
+        False
     ):
 
-        st.markdown("### Analyse IA")
+        # Question
+        st.markdown("#### Votre question")
 
-        st.write(
-            st.session_state["analyse"]
+        st.info(
+            st.session_state["question"]
         )
 
+        # Réponse générée
+        st.write(
+            st.session_state["plan"]["response"]
+        )
+
+        # Dataframe
+        if "df_analysis" in st.session_state:
+
+            st.dataframe(
+                st.session_state["df_analysis"],
+                use_container_width=True
+            )
+
+        # Graphique Plotly
+        if st.session_state.get("fig") is not None:
+
+            st.plotly_chart(
+                st.session_state["fig"],
+                use_container_width=True
+            )
+
+        # Interprétation IA
+        if "analyse" in st.session_state:
+
+            st.markdown("### Analyse IA")
+
+            st.write(
+                st.session_state["analyse"]
+            )
 
 connexion.close()
